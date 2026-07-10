@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Gallery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            outline: none;
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #F0F0F0;
+            color: #1a1a1a;
+            overflow-x: hidden;
+        }
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 1000;
+            transition: height 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        body.scrolled header {
+            height: 65px;
+        }
+        .header-container {
+            max-width: 1400px;
+            height: 100%;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+        .logo-link {
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+        .logo-img {
+            height: 60px;
+            width: auto;
+            object-fit: contain;
+            transition: height 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .logo-text-part {
+            padding-left: 15px;
+            max-width: 185px;
+        }
+        body.scrolled .logo-img {
+            height: 35px;
+        }
+        .nav-icons {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            height: 100%;
+        }
+        .nav-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: filter 0.3s ease;
+            will-change: filter;
+        }
+        .nav-icons a:hover {
+            filter: opacity(0.5);
+        }
+        .nav-icons svg {
+            width: 25px;
+            height: 25px;
+            fill: #1a1a1a;
+        }
+        main {
+            max-width: 1400px;
+            margin: 180px auto 100px auto;
+            padding: 0 40px;
+        }
+        .gallery-container {
+            display: flex;
+            flex-direction: column;
+        }
+        .project-section {
+            display: flex;
+            position: relative;
+        }
+        .project-meta {
+            width: 265px;
+            padding-right: 10px;
+        }
+        .sticky-meta {
+            width: 100%;
+            position: -webkit-sticky;
+            position: sticky;
+            top: 65px;
+            padding-top: 10px;
+            height: fit-content;
+        }
+        .project-title {
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            color: #403C3A;
+        }
+        .project-desc {
+            font-size: 0.75rem;
+            line-height: 1.4;
+            color: #403C3A;
+            padding-right: 10px; 
+        }
+        .project-display {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .project-section:first-child .project-display {
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+        }
+        .project-section:last-child .project-display {
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+        }
+        .slide-container-1 {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+        }
+        .slide-container-2 {
+            position: relative;
+            width: 100%;
+            height: 800px;
+            overflow: hidden;
+        }
+        .parallax-bg {
+            position: absolute;
+            top: -20%;
+            left: 0;
+            width: 100%;
+            height: 140%;
+            background-size: cover;
+            background-position: center;
+            will-change: transform;
+            transform: translateY(0);
+        }
+        .front-img {
+            position: cover;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 2;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        @media (max-width: 1200px) {
+            header, body.scrolled header {
+                height: 80px;
+            }
+            .header-container {
+                padding: 0 20px;
+            }
+            .logo-img, body.scrolled .logo-img {
+                height: 40px;
+            }
+            main {
+                margin-top: 120px;
+                padding: 0 20px;
+            }
+            .project-section {
+                flex-direction: column;
+                padding-bottom: 40px;
+            }
+            .project-meta {
+                width: 100%;
+                padding-right: 0;
+                margin-bottom: 20px;
+            }
+            .sticky-meta {
+                position: relative;
+                top: 0;
+            }
+            .project-display {
+                width: 100%;
+            }
+            .slide-container-1 {
+                height: 300px;
+            }
+        }
+        @media (max-width: 800px) {
+            main {
+                margin-top: 120px;
+                padding: 0px;
+            }
+            .project-meta {
+                padding-right: 10px;
+                padding-left: 20px;
+            }
+            .project-section:first-child .project-display {
+                border-top-left-radius: 0px;
+                border-top-right-radius: 0px;
+            }
+            .project-section:last-child .project-display {
+                border-bottom-left-radius: 0px;
+                border-bottom-right-radius: 0px;
+            }
+            .slide-container-1 {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <a href="#" class="logo-link">
+                <img class="logo-img" src="UI/Logo.svg" alt="Logo" width="50" height="90">
+                <img class="logo-text-part" src="UI/Name.svg" alt="Name" width="312" height="51">
+            </a>
+            <nav class="nav-icons">
+                <a href="https://www.linkedin.com/in/gaborlakatos" target="_blank" rel="noopener" aria-label="LinkedIn">
+                    <img src="UI/LinkedIn.svg" alt="LinkedIn" width="22" height="22">
+                </a>
+                <a href="cv.pdf" download aria-label="Download CV">
+                    <img src="UI/CV.svg" alt="CV" width="22" height="22">
+                </a>
+                <a href="mailto:gaborlakatos89@gmail.com" aria-label="Contact Email">
+                    <img src="UI/Contact.svg" alt="Contact" width="22" height="22">
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="gallery-container">
+            
+            <section class="project-section">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Logos</h2>
+                        <p class="project-desc">A mix of commercial client work and personal design experiments.</p>
+                    </div>
+                </div>
+                <div class="project-display">
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Logo 1.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Logo 2.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Logo 3.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Logo 4.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Logo 5.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <div class="parallax-bg" style="background-image: url('Projects/Zongora.webp');">
+                        </div>
+                    </div>
+                    <div class="slide-container-1">
+                        <div class="parallax-bg" style="background-image: url('Projects/Headphones.webp');">
+                        </div>
+                    </div>
+                    <div class="slide-container-1">
+                        <div class="parallax-bg" style="background-image: url('Projects/Guitar.webp'); height: fill; position: center;">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="project-section">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Flow UI</h2>
+                        <p class="project-desc">A modular VST plugin concept combining dynamics modules with a customisable signal flow.</p>
+                    </div>
+                </div>
+                <div class="project-display">
+                    <div class="slide-container-1" style="height: 800px;">
+                        <div class="parallax-bg" style="background-image: url('https://picsum.photos/id/22/1200/800');"></div>
+                        <img class="front-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='600' viewBox='0 0 1200 600'><line x1='100' y1='100' x2='1100' y2='500' stroke='white' stroke-width='8'/><line x1='100' y1='500' x2='1100' y2='100' stroke='white' stroke-width='8'/></svg>" alt="Front Overlay">
+                    </div>
+                    <div class="slide-container-1">
+                        <div class="parallax-bg" style="background-image: url('https://picsum.photos/id/28/1200/800');"></div>
+                        <img class="front-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='600' viewBox='0 0 1200 600'><rect x='300' y='150' width='600' height='300' fill='none' stroke='rgba(255,255,255,0.9)' stroke-width='30'/></svg>" alt="Front Overlay">
+                    </div>
+                </div>
+            </section>
+
+            <section class="project-section">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Project Three</h2>
+                        <p class="project-desc">Interaction design concepts utilizing depth, motion, and organic alignment.</p>
+                    </div>
+                </div>
+                <div class="project-display">
+                    <div class="slide-container-1">
+                        <div class="parallax-bg" style="background-image: url('https://picsum.photos/id/36/1200/800');"></div>
+                        <img class="front-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='600' viewBox='0 0 1200 600'><circle cx='200' cy='200' r='100' fill='rgba(255,255,255,0.5)'/><circle cx='1000' cy='400' r='120' fill='rgba(255,255,255,0.5)'/></svg>" alt="Front Overlay">
+                    </div>
+                    <div class="slide-container-1">
+                        <div class="parallax-bg" style="background-image: url('https://picsum.photos/id/48/1200/800');"></div>
+                        <img class="front-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='600' viewBox='0 0 1200 600'><path d='M100,300 Q300,50 600,300 T1100,300' fill='none' stroke='white' stroke-width='12'/></svg>" alt="Front Overlay">
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        const body = document.body;
+        const logoText = document.querySelector('.logo-text-part');
+        const parallaxBgs = document.querySelectorAll('.parallax-bg');
+        let isMobile = window.innerWidth <= 900;
+
+        window.addEventListener('resize', () => {
+            isMobile = window.innerWidth <= 900;
+            if (isMobile) {
+                body.classList.remove('scrolled');
+                logoText.style.display = 'block';
+                parallaxBgs.forEach(bg => bg.style.transform = 'translateY(0)');
+            }
+        });
+
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+
+            // Header resize toggle
+            if (!isMobile) {
+                if (scrollTop > 50) {
+                    body.classList.add('scrolled');
+                    logoText.style.display = 'none';
+                } else {
+                    body.classList.remove('scrolled');
+                    logoText.style.display = 'block';
+                }
+            }
+
+            // Parallax Calculation
+            parallaxBgs.forEach(bg => {
+                const parent = bg.parentElement;
+                const rect = parent.getBoundingClientRect();
+                const viewHeight = window.innerHeight;
+
+                // Track if element is visible in viewport
+                if (rect.top < viewHeight && rect.bottom > 0) {
+                    // Calculate relative scroll position through parent frame (-1 to 1)
+                    const parentCenter = rect.top + rect.height / 2;
+                    const viewCenter = viewHeight / 2;
+                    const offset = -(parentCenter - viewCenter) * 0.1; // Slow movement factor
+                    
+                    bg.style.transform = `translateY(${offset}px)`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
