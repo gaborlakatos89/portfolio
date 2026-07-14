@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gábor Lakatos | Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            outline: none;
+            scroll-behavior: smooth;
+        }
+        /* The full screen blanket that hides your site while loading */
+        #portfolio-preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #F0F0F0; /* MATCH THIS to your website's actual background color */
+            z-index: 99999;
+            transition: opacity 0.8s ease;
+        }
+        /* The loading line itself sitting at the top of the blanket */
+        #portfolio-preloader::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 2px; /* Thickness of the line */
+            background: #403C3A; /* Color of the line */
+            width: 0%;
+            transition: width 0.4s ease-out;
+        }
+        /* Class applied by JS to trigger the final 100% line fill */
+        #portfolio-preloader.complete::before {
+            width: 100%;
+        }
+        /* Class applied by JS to fade the blanket away and reveal your site */
+        #portfolio-preloader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #F1F1F0;
+            color: #1a1a1a;
+            overflow-x: hidden;
+        }
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            background: rgba(12, 7, 5, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 1000;
+            transition: height 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            overflow: visible;
+            transform: translate3d(0, 0, 0);
+            -webkit-transform: translate3d(0, 0, 0);
+            animation-timing-function: ease;
+        }
+        body.scrolled header {
+            height: 60px;
+        }
+        .header-container {
+            max-width: 1400px;
+            height: 100%;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: visible;
+        }
+        .logo-link {
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+        .logo-img {
+            height: 65px;
+            width: auto;
+            object-fit: contain;
+            transition: height 0.3s;
+            animation-timing-function: ease;
+        }
+        .logo-text-part {
+            padding-left: 15px;
+            max-width: 185px;
+        }
+        body.scrolled .logo-img {
+            height: 40px;
+        }
+        .nav-icons {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            height: 100%;
+        }
+        .nav-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: filter 0.3s ease;
+            will-change: filter;
+        }
+        .nav-icons a:hover {
+            background-colour: #FFFFFF(0.5);
+        }
+        main {
+            max-width: 1400px;
+            margin: 180px auto 200px auto;
+            padding: 0 40px;
+        }
+        .gallery-container {
+            display: flex;
+            flex-direction: column;
+        }
+        .project-section {
+            display: flex;
+            position: relative;
+            padding-bottom: 60px;
+        }
+        .project-meta {
+            width: 265px;
+            padding-right: 10px;
+        }
+        .sticky-meta {
+            width: 100%;
+            position: -webkit-sticky;
+            position: sticky;
+            top: 65px;
+            padding-top: 10px;
+            height: fit-content;
+        }
+        .project-title {
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            color: #403C3A;
+        }
+        .project-desc {
+            font-size: 0.75rem;
+            line-height: 1.4;
+            color: #403C3A;
+            padding-right: 10px; 
+        }
+        .project-display {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .project-display > div:first-child {
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+        }
+        .project-display > div:last-child {
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+        }
+        .slide-container-1 {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+        }
+        .slide-container-2 {
+            position: relative;
+            width: 100%;
+            height: 800px;
+            overflow: hidden;
+        }
+        .slide-container-3 {
+            position: relative;
+            width: 100%;
+            height: 1200px;
+            overflow: hidden;
+        }
+        .parallax-bg {
+            position: absolute;
+            top: -20%;
+            left: 0;
+            width: 100%;
+            height: 140%;
+            background-size: cover;
+            background-position: center;
+            will-change: transform;
+            transform: translateY(0);
+            overflow: hidden;
+        }
+        .parallax-vid-bg {
+            position: absolute;
+            top: -20%;
+            left: 0;
+            width: 100%;
+            height: 140%;
+            object-fit: cover;
+            will-change: transform;
+            transform: translateY(0);
+            z-index: -1;
+            overflow: hidden;
+        }
+        .front-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 2;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .front-vid {
+            position: cover;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 2;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        @media (max-width: 1400px) {
+            .project-display > div:first-child  {
+                border-top-left-radius: 12px;
+                border-top-right-radius: 12px;
+            }
+            .project-display > div:last-child  {
+                border-bottom-left-radius: 12px;
+                border-bottom-right-radius: 12px;
+            }
+            .slide-container-3 {
+                height: 1150px;
+            }
+        }
+        @media (max-width: 1200px) {
+            .nav-icons {
+                gap: 20px;
+            }
+            .project-title {
+                font-size: 0.9rem;
+                font-weight: 600;
+                margin-bottom: 5px;
+            }
+            .project-desc {
+                font-size: 0.75rem;
+                line-height: 1.3;
+                padding-right: 10px; 
+            }
+            .slide-container-1 {
+                height: 370px;
+            }
+            .slide-container-2 {
+                height: 750px;
+            }
+            .slide-container-3 {
+                height: 1100px;
+            }
+        }
+        @media (max-width: 992px) {
+            header, body.scrolled header {
+                height: 60px;
+            }
+            .header-container {
+                padding: 0 20px;
+            }
+            main {
+                margin-top: 120px;
+                padding: 0 20px;
+            }
+            .logo-img, body.scrolled .logo-img {
+                height: 40px;
+            }
+            .project-section {
+                flex-direction: column;
+                padding-bottom: 40px;
+            }
+            .project-meta {
+                width: 100%;
+                padding-left: 0px;
+                margin-bottom: 20px;
+            }
+            .sticky-meta {
+                position: relative;
+                top: 0;
+            }
+            .project-display {
+                width: 100%;
+            }
+            .slide-container-1 {
+                height: 360px;
+            }
+            .slide-container-2 {
+                height: 730px;
+            }
+            .slide-container-3 {
+                height: 800px;
+            }
+        }
+        @media (max-width: 768px) {
+            main {
+                margin-top: 120px;
+                padding: 0 20px;
+            }
+            .project-meta {
+                width: 100%;
+                padding-left: 0px;
+                margin-bottom: 20px;
+            }
+            .slide-container-1 {
+                height: 300px;
+            }
+            .slide-container-2 {
+                height: 600px;
+            }
+            .slide-container-3 {
+                height: 700px;
+            }
+        }
+        @media (max-width: 576px) {
+            main {
+                margin-top: 120px;
+                padding: 0px;
+            }
+            .logo-text-part {
+                padding-left: 13px;
+                max-width: 150px;
+            }
+            .nav-icons {
+                gap: 10px;
+            }
+            .project-meta {
+                width: 100%;
+                padding-left: 20px;
+                margin-bottom: 20px;
+            }
+            .project-display > div:first-child {
+                border-top-left-radius: 0px;
+                border-top-right-radius: 0px;
+            }
+            .project-display > div:last-child {
+                border-bottom-left-radius: 0px;
+                border-bottom-right-radius: 0px;
+            }
+            .slide-container-1 {
+                height: 250px;
+            }
+            .slide-container-2 {
+                height: 500px;
+            }
+            .slide-container-3 {
+                height: 600px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="portfolio-preloader"></div>
+
+    <header>
+        <div class="header-container">
+            <a href="#" class="logo-link">
+                <img class="logo-img" src="UI/Logo.svg" alt="Logo" width="50" height="90">
+                <img class="logo-text-part" src="UI/Name.svg" alt="Name" width="312" height="51">
+            </a>
+            <nav class="nav-icons">
+                <a href="https://www.linkedin.com/in/gaborlakatos" target="_blank" rel="noopener" aria-label="LinkedIn">
+                    <img src="UI/LinkedIn.svg" alt="LinkedIn" width="20" height="20">
+                </a>
+                <a href="cv.pdf" download aria-label="Download CV">
+                    <img src="UI/CV.svg" alt="CV" width="20" height="20">
+                </a>
+                <a href="mailto:gaborlakatos89@gmail.com" aria-label="Contact Email">
+                    <img src="UI/Contact.svg" alt="Contact" width="20" height="20">
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="gallery-container">
+            
+            <section class="project-section">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Logos</h2>
+                        <p class="project-desc">A mix of commercial client work and personal design experiments.</p>
+                    </div>
+                </div>
+                <div class="project-display">
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Logo 1.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Logo 2.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Logo 3.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Logo 4.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Logo 5.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <div class="parallax-bg" style="background-image: url('Projects/Zongora.webp');"></div>
+                    </div>
+                    <div class="slide-container-1">
+                        <div class="parallax-bg" style="background-image: url('Projects/Headphones.webp');"></div>
+                    </div>
+                    <div class="slide-container-1">
+                        <div class="parallax-bg" style="background-image: url('Projects/Guitar.webp');"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="project-section">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Flow UI</h2>
+                        <p class="project-desc">A modular VST plugin concept combining dynamics modules with a customisable signal flow.</p>
+                    </div>
+                </div>
+                <div class="project-display">
+                    <div class="slide-container-2">
+                        <video class="parallax-vid-bg" width="100%" autoplay loop muted playsinline>
+                            <source src="Projects/Flow 1 Background.webm" type="video/webm">
+                        </video>
+                        <video class="front-vid" width="100%" autoplay loop muted playsinline>
+                            <source src="Projects/Flow 1.mov" type='video/mp4; codecs="hvc1"'>
+                        </video>
+                        <video class="front-vid" width="100%" autoplay loop muted playsinline>
+                            <source src="Projects/Flow 1.webm" type="video/webm">
+                        </video>
+                    </div>
+                    <div class="slide-container-3">
+                        <div class="parallax-bg" style="background-image: url('Projects/Flow 2 Background.webp');"></div>
+                        <img class="front-img" src="Projects/Flow 2.webp" alt="Front">
+                    </div>
+                </div>
+            </section>
+            
+            <section class="project-section">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Chess Set</h2>
+                        <p class="project-desc">A mix of commercial client work and personal design experiments.</p>
+                    </div>
+                </div>
+                <div class="project-display">
+                    <div class="slide-container-2">
+                        <img class="front-img" src="Projects/Chess 1.webp" alt="Front">
+                    </div>
+                </div>
+            </section>
+
+            <section class="project-section">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Album Art</h2>
+                        <p class="project-desc">Visual depictions created with noise generators, node-controlled distorted geometry, and random values.</p>
+                    </div>
+                </div>
+                <div class="project-display">
+                    <div class="slide-container-2">
+                        <img class="front-img" src="Projects/Album Art 1.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-2">
+                        <img class="front-img" src="Projects/Album Art 2.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-2">
+                        <img class="front-img" src="Projects/Album Art 3.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <div class="parallax-bg" style="background-image: url('Projects/Album Art 4.webp');"></div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        const body = document.body;
+        const logoText = document.querySelector('.logo-text-part');
+        const navIcons = document.querySelector('.nav-icons');
+        const parallaxBgs = document.querySelectorAll('.parallax-bg, .parallax-vid-bg');
+        let isMobile = window.innerWidth <= 992;
+
+        window.addEventListener('resize', () => {
+            isMobile = window.innerWidth <= 992;
+            if (isMobile) {
+                body.classList.remove('scrolled');
+                logoText.style.display = 'block';
+                parallaxBgs.forEach(bg => bg.style.transform = 'translateY(0)');
+            }
+        });
+
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+
+            // Header resize toggle
+            if (!isMobile) {
+                if (scrollTop > 50) {
+                    body.classList.add('scrolled');
+                    logoText.style.display = 'none';
+                } else {
+                    body.classList.remove('scrolled');
+                    logoText.style.display = 'block';
+                    }
+                }
+                    
+            if (!isMobile) {
+                if (scrollTop > 50) {
+                    body.classList.add('scrolled');
+                    navIcons.style.display = 'none';
+                } else {
+                    body.classList.remove('scrolled');
+                    navIcons.style.display = 'flex';
+                    }
+                }
+
+            // Parallax Calculation
+            parallaxBgs.forEach(bg => {
+                const parent = bg.parentElement;
+                const rect = parent.getBoundingClientRect();
+                const viewHeight = window.innerHeight;
+
+                // Track if element is visible in viewport
+                if (rect.top < viewHeight && rect.bottom > 0) {
+                    // Calculate relative scroll position through parent frame (-1 to 1)
+                    const parentCenter = rect.top + rect.height / 2;
+                    const viewCenter = viewHeight / 2;
+                    const offset = -(parentCenter - viewCenter) * 0.1; // Slow movement factor
+                    
+                    bg.style.transform = `translateY(${offset}px)`;
+                }
+            });
+        });
+        
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('portfolio-preloader');
+            if (!loader) return;
+            
+            // 1. Fill the line to 100%
+            loader.classList.add('complete');
+            
+            // 2. Wait for the line animation to finish, then fade out the blanket
+            setTimeout(() => {
+                loader.classList.add('fade-out');
+    
+                // 3. Delete it from the DOM entirely once it's invisible
+                setTimeout(() => loader.remove(), 800);
+            }, 400); 
+        });
+
+        // Idiotsyncrasy fix: starts moving the line instantly so it doesn't look stuck
+        setTimeout(() => {
+            const loader = document.getElementById('portfolio-preloader');
+            if (loader && !loader.classList.contains('complete')) {
+                loader.style.setProperty('--initial-progress', '40%');
+                // Inline fallback injection to force the bar to move to 40% initially
+                const sheet = document.styleSheets[0];
+                sheet.insertRule('#portfolio-preloader::before { width: 40%; }', sheet.cssRules.length);
+            }
+        }, 50);
+    </script>
+</body>
+</html>
