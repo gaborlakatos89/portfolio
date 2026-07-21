@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gábor Lakatos | Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            outline: none;
+            scroll-behavior: smooth;
+        }
+        /* The full screen blanket that hides your site while loading */
+        #portfolio-preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #F0F0F0; /* MATCH THIS to your website's actual background color */
+            z-index: 99999;
+            transition: opacity 0.8s ease;
+        }
+        /* The loading line itself sitting at the top of the blanket */
+        #portfolio-preloader::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 2px; /* Thickness of the line */
+            background: #403C3A; /* Color of the line */
+            width: 0%;
+            transition: width 0.4s ease-out;
+        }
+        /* Class applied by JS to trigger the final 100% line fill */
+        #portfolio-preloader.complete::before {
+            width: 100%;
+        }
+        /* Class applied by JS to fade the blanket away and reveal your site */
+        #portfolio-preloader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #F1F1F0;
+            color: #1a1a1a;
+            overflow-x: hidden;
+        }
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            z-index: 1000;
+            overflow: visible;
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+            transition: 
+                height 0.4s cubic-bezier(0.25, 1, 0.5, 1), 
+                backdrop-filter 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                -webkit-backdrop-filter 0.4s cubic-bezier(0.25, 1, 0.5, 1);               
+            transform: translate3d(0, 0, 0);
+            -webkit-transform: translate3d(0, 0, 0);
+            will-change: height, transform, backdrop-filter;
+        }
+        
+        /* Layer 1: Default Dark Gradient */
+        header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, #5c5754 0%, 10%, #403C3A 80%);
+            opacity: 1;
+            transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        /* Layer 2: Scrolled Transparent Gradient */
+        header::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(255, 255, 255, 0.25) 0%, 3%, rgba(255, 255, 255, 0) 60%), rgba(144, 140, 138, 0.6);
+            opacity: 0;
+            transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        body.scrolled header {
+            height: 50px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        
+        /* Fade out State 1, Fade in State 2 */
+        body.scrolled header::before {
+            opacity: 0;
+        }
+        
+        body.scrolled header::after {
+            opacity: 1;
+        }
+        .header-container {
+            max-width: 1400px;
+            height: 100%;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: visible;
+        }
+        .logo-link {
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+        .logo-img {
+            height: 65px;
+            width: auto;
+            object-fit: contain;
+            transition: height 0.4s;
+            animation-timing-function: ease;
+            will-change: height;
+        }
+        .logo-text-part {
+            padding-left: 15px;
+            max-width: 185px;
+            transition: clip-path 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease;
+            clip-path: inset(0 0 0 0);
+            opacity: 1;
+        }
+        body.scrolled .logo-img {
+            height: 35px;
+        }
+        body.scrolled .logo-text-part {
+            clip-path: inset(0 100% 0 0); 
+            opacity: 0;
+        }
+        .nav-icons {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            height: 100%;
+        }
+        
+        .nav-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative; /* Essential for positioning the line */
+            padding-top: 10px;
+            padding-bottom: 10px; /* Creates the 10px spacing below the icon */
+            color: inherit;
+            text-decoration: none;
+        }
+        
+        /* The hidden line element */
+        .nav-icons a::after {
+            content: '';
+            position: absolute;
+            bottom: 0; /* Placed at the bottom of the padding zone */
+            left: 50%;
+            width: 0;
+            height: 1px;
+            background-color: #FFFFFF; /* Matches your icon/text color */
+            border-radius: 2px; /* Softens the ends of the line */
+            transform: translateX(-50%); /* Centers the line as it expands */
+            transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* On hover: expands the line to full icon width */
+        .nav-icons a:hover::after {
+            width: 100%;
+        }
+        /* 1. Hero Section */
+        #hero {
+          height: 100vh;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          background-color: #908C8A;
+          /* Smooth collapse */
+          transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+          overflow: hidden;
+        }
+        
+        /* Collapsed State */
+        #hero.collapsed {
+          height: 0;
+          opacity: 0;
+          pointer-events: none;
+        }
+        
+        /* 2. Modern Interactive Button */
+        #scroll-btn {
+          position: relative;
+          overflow: hidden;
+          background: rgba(255, 255, 255, 0.03);
+          color: #fff;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          padding: 16px 24px;
+          font-size: 0.95rem;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          border-radius: 15px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          
+          /* Smooth, snappy transition curve */
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          backdrop-filter: blur(8px);
+        }
+        
+        /* Subtle border highlight on hover */
+        #scroll-btn:hover {
+          background: rgba(255, 255, 255, 0.12);
+          border-color: rgba(255, 255, 255, 0.6);
+          transform: translateY(-3px);
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2),
+                      0 0 15px rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Click feedback */
+        #scroll-btn:active {
+          transform: translateY(-1px);
+        }
+        
+        /* Modern light-sweep overlay effect */
+        #scroll-btn::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent
+          );
+          transition: left 0.6s ease;
+        }
+        
+        #scroll-btn:hover::after {
+          left: 100%;
+        }
+        main {
+            max-width: 1400px;
+            margin: 180px auto 120px auto;
+            padding: 0 40px;
+        }
+        .gallery-container {
+            display: flex;
+            flex-direction: column;
+        }
+        .project-section {
+            display: flex;
+            position: relative;
+            padding-bottom: 60px;
+        }
+        .project-meta {
+            width: 265px;
+            padding-right: 10px;
+        }
+        .sticky-meta {
+            width: 100%;
+            position: -webkit-sticky;
+            position: sticky;
+            top: 65px;
+            padding-top: 10px;
+            height: fit-content;
+        }
+        .project-title {
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            color: #403C3A;
+        }
+        .project-desc {
+            font-size: 0.75rem;
+            line-height: 1.4;
+            color: #75706E;
+            padding-right: 10px; 
+        }
+        .project-display {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .project-display > div:first-child {
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+        }
+        .project-display > div:last-child {
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+        }
+        .slide-container-1 {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
+        }
+        .slide-container-2 {
+            position: relative;
+            width: 100%;
+            height: 800px;
+            overflow: hidden;
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
+        }
+        .slide-container-3 {
+            position: relative;
+            width: 100%;
+            height: 1200px;
+            overflow: hidden;
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
+        }
+        .slide-container-1 > *, .slide-container-2 > *, .slide-container-3 > * {
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out; 
+            will-change: opacity; 
+        }
+        .slide-container-1 > .visible, .slide-container-2 > .visible, .slide-container-3 > .visible {
+            opacity: 1;
+        }
+        .parallax-bg {
+            position: absolute;
+            top: -20%;
+            left: 0;
+            width: 100%;
+            height: 140%;
+            background-size: cover;
+            background-position: center;
+            will-change: transform;
+            transform: translateY(0);
+            overflow: hidden;
+        }
+        .parallax-vid-bg {
+            position: absolute;
+            top: -20%;
+            left: 0;
+            width: 100%;
+            height: 140%;
+            object-fit: cover;
+            will-change: transform;
+            transform: translateY(0);
+            z-index: -1;
+            overflow: hidden;
+        }
+        .front-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 2;
+            pointer-events: none;
+            overflow: hidden;
+            transition: opacity 0.3s ease-in-out; 
+        }
+        .front-vid {
+            position: relative;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 2;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        @media (max-width: 1400px) {
+            .project-display > div:first-child  {
+                border-top-left-radius: 12px;
+                border-top-right-radius: 12px;
+            }
+            .project-display > div:last-child  {
+                border-bottom-left-radius: 12px;
+                border-bottom-right-radius: 12px;
+            }
+            .slide-container-3 {
+                height: 1150px;
+            }
+        }
+        @media (max-width: 1200px) {
+            .nav-icons {
+                gap: 20px;
+            }
+            .project-title {
+                font-size: 0.9rem;
+                font-weight: 600;
+                margin-bottom: 5px;
+            }
+            .project-desc {
+                font-size: 0.75rem;
+                line-height: 1.3;
+                padding-right: 10px; 
+            }
+            .slide-container-1 {
+                height: 370px;
+            }
+            .slide-container-2 {
+                height: 750px;
+            }
+            .slide-container-3 {
+                height: 1100px;
+            }
+        }
+        @media (max-width: 992px) {
+            header {
+                height: 100px;
+            }
+            body.scrolled header {
+                height: 60px;
+            }
+            .header-container {
+                padding: 0 25px;
+            }
+            main {
+                margin-top: 120px;
+                padding: 0 20px;
+            }
+            .logo-img {
+                height: 60px;
+            }
+            body.scrolled .logo-img {
+                height: 40px;
+            }
+            .logo-text-part {
+                padding-left: 22px;
+                max-width: 150px;
+            }
+            .project-section {
+                flex-direction: column;
+                padding-bottom: 40px;
+            }
+            .project-meta {
+                width: 100%;
+                padding-left: 0px;
+                margin-bottom: 20px;
+            }
+            .sticky-meta {
+                position: relative;
+                top: 0;
+            }
+            .project-display {
+                width: 100%;
+            }
+            .slide-container-1 {
+                height: 360px;
+            }
+            .slide-container-2 {
+                height: 730px;
+            }
+            .slide-container-3 {
+                height: 800px;
+            }
+        }
+        @media (max-width: 768px) {
+            header, body.scrolled header {
+                height: 60px;
+            }
+            .header-container {
+                padding: 0 20px;
+            }
+            main {
+                margin-top: 120px;
+                padding: 0 20px;
+            }
+            .logo-img, body.scrolled .logo-img{
+                height: 40px;
+            }
+            .logo-text-part {
+                padding-left: 16px;
+                max-width: 140px;
+            }
+            .project-meta {
+                width: 100%;
+                padding-left: 0px;
+                margin-bottom: 20px;
+            }
+            .slide-container-1 {
+                height: 300px;
+            }
+            .slide-container-2 {
+                height: 600px;
+            }
+            .slide-container-3 {
+                height: 700px;
+            }
+        }
+        @media (max-width: 576px) {
+            main {
+                margin-top: 120px;
+                padding: 0px;
+            }
+            .nav-icons {
+                gap: 15px;
+            }
+            .project-meta {
+                width: 100%;
+                padding-left: 20px;
+                margin-bottom: 20px;
+            }
+            .project-display > div:first-child {
+                border-top-left-radius: 0px;
+                border-top-right-radius: 0px;
+            }
+            .project-display > div:last-child {
+                border-bottom-left-radius: 0px;
+                border-bottom-right-radius: 0px;
+            }
+            .slide-container-1 {
+                height: 250px;
+            }
+            .slide-container-2 {
+                height: 500px;
+            }
+            .slide-container-3 {
+                height: 600px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="portfolio-preloader"></div>
+
+    <header>
+        <div class="header-container">
+            <a href="#" class="logo-link">
+                <img class="logo-img" src="UI/Logo.svg" alt="Logo" width="50" height="90">
+                <img class="logo-text-part" src="UI/Name.svg" alt="Name" width="312" height="51">
+            </a>
+            <nav class="nav-icons">
+                <a href="https://www.linkedin.com/in/gaborlakatos" target="_blank" rel="noopener" aria-label="LinkedIn">
+                    <img src="UI/LinkedIn.svg" alt="LinkedIn" width="20" height="20">
+                </a>
+                <a href="UI/CV.pdf" target="_blank" download aria-label="Download CV">
+                    <img src="UI/CV.svg" alt="CV" width="20" height="20">
+                </a>
+                <a href="mailto:gaborlakatos89@gmail.com" aria-label="Contact Email">
+                    <img src="UI/Contact.svg" alt="Contact" width="20" height="20">
+                </a>
+            </nav>
+        </div>
+    </header>
+    
+    <section id="hero">
+        <button id="scroll-btn">
+            explore work ↓
+        </button>
+    </section>
+
+    <main>
+        <div class="gallery-container" id="gallery-container">
+        
+            <section class="project-section">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Album Art</h2>
+                        <p class="project-desc">Visual depictions created with noise generators, node-controlled distorted geometry, and random values.</p>
+                    </div>
+                </div>
+                <div class="project-display">
+                    <div class="slide-container-2">
+                        <img class="front-img" src="Projects/Album Art 1.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-2">
+                        <img class="front-img" src="Projects/Album Art 2.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-2">
+                        <img class="front-img" src="Projects/Album Art 3.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Album Art 4.webp" alt="Front">
+                    </div>
+                </div>
+            </section>
+            
+            <section class="project-section">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Logos</h2>
+                        <p class="project-desc">A mix of commercial client work and personal design experiments.</p>
+                    </div>
+                </div>
+                <div class="project-display">
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Logo 1.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Logo 2.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Logo 3.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Logo 4.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Logo 5.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Zongora.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Headphones.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Guitar.webp" alt="Front">
+                    </div>
+                </div>
+            </section>
+
+            <section class="project-section">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Flow</h2>
+                        <p class="project-desc">A modular VST plugin concept combining dynamics modules with a customisable signal flow.</p>
+                    </div>
+                </div>
+                <div class="project-display">
+                    <div class="slide-container-2">
+                        <video class="parallax-vid-bg" width="100%" autoplay loop muted playsinline>
+                            <source src="Projects/Flow 1 Background.webm" type="video/webm">
+                        </video>
+                        <video class="front-vid" width="100%" autoplay loop muted playsinline>
+                            <source src="Projects/Flow 1.mov" type='video/mp4; codecs="hvc1"'>
+                            <source src="Projects/Flow 1.webm" type="video/webm">
+                        </video>
+                    </div>
+                    <div class="slide-container-3">
+                        <div class="parallax-bg" style="background-image: url('Projects/Flow 2 Background.webp');" loading="lazy"></div>
+                        <img class="front-img" src="Projects/Flow 2.webp" alt="Front" loading="lazy">
+                    </div>
+                </div>
+            </section>
+            
+            <section class="project-section">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Vectora</h2>
+                        <p class="project-desc">A software synth featuring a raw, geometric shape that evolves as you tweak the parameters.</p>
+                    </div>
+                </div>
+                <div class="project-display">
+                    <div class="slide-container-2">
+                        <video class="parallax-vid-bg" width="100%" autoplay loop muted playsinline>
+                            <source src="Projects/Vectora Background.webm" type="video/webm">
+                        </video>
+                        <video class="front-vid" width="100%" autoplay loop muted playsinline>
+                            <source src="Projects/Vectora Interface.mov" type='video/mp4; codecs="hvc1"'>
+                            <source src="Projects/Vectora Interface.webm" type="video/webm">
+                        </video>
+                    </div>
+                    <div class="slide-container-1">
+                        <video class="front-vid" width="100%" autoplay loop muted playsinline>
+                            <source src="Projects/Vectora Macro.webm" type="video/webm">
+                        </video>
+                    </div>
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Vectora Detail.webp" alt="Front">
+                    </div>
+                </div>
+            </section>
+            
+            <section class="project-section">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Chess Set Design</h2>
+                        <p class="project-desc">Clean shapes meeting concrete surfaces.</p>
+                    </div>
+                </div>
+                <div class="project-display">
+                    <div class="slide-container-2">
+                        <img class="front-img" src="Projects/Chess 1.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Chess 2.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-2">
+                        <img class="front-img" src="Projects/Chess 3.webp" alt="Front">
+                    </div>
+                    <div class="slide-container-2">
+                        <img class="front-img" src="Projects/Chess 4.webp" alt="Front">
+                    </div>
+                </div>
+            </section>
+            
+            <section class="project-section">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Polyshade</h2>
+                        <p class="project-desc">A polyphonic synth inspired by 80s hardware + modern UX sensibilities.</p>
+                    </div>
+                </div>
+                <div class="project-display">
+                    <div class="slide-container-2">
+                        <video class="parallax-vid-bg" width="100%" autoplay loop muted playsinline>
+                            <source src="Projects/Polyshade Background.webm" type="video/webm">
+                        </video>
+                        <video class="front-vid" width="100%" autoplay loop muted playsinline>
+                            <source src="Projects/Polyshade Interface.mov" type='video/mp4; codecs="hvc1"'>
+                            <source src="Projects/Polyshade Interface.webm" type="video/webm">
+                        </video>
+                    </div>
+                    <div class="slide-container-1">
+                        <video class="front-vid" width="100%" autoplay loop muted playsinline>
+                            <source src="Projects/Polyshade Details.webm" type="video/webm">
+                        </video>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="project-section">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Woven Notes</h2>
+                        <p class="project-desc">A midi visualiser programmed in Processing. The 88 keys of a piano are spread out in 360 degrees, starting from the centre when pressed. Their colours represent their velocity, while their linking lines the intervals between the notes while the sustain pedal was active.</p>
+                    </div>
+                </div>
+                <div class="project-display">
+                    <div class="slide-container-2">
+                        <div class="parallax-bg" style="background-image: url('Projects/Woven Notes 1 Background.webp');"></div>
+                        <video class="front-vid" width="100%" autoplay loop muted playsinline>
+                            <source src="Projects/Woven Notes 1.mov" type='video/mp4; codecs="hvc1"'>
+                            <source src="Projects/Woven Notes 1.webm" type="video/webm">
+                        </video>
+                    </div>
+                    <div class="slide-container-1">
+                        <img class="front-img" src="Projects/Woven Notes 2.webp" alt="Front">
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        // 1. Disable browser automatic scroll restoration & force top on refresh
+        if ('scrollRestoration' in history) {
+          history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0, 0);
+        
+        document.addEventListener('DOMContentLoaded', () => {
+          // --- DOM Elements & State ---
+          const body = document.body;
+          const navIcons = document.querySelector('.nav-icons');
+          const logoText = document.querySelector('.logo-text');
+          const hero = document.getElementById('hero');
+          const scrollBtn = document.getElementById('scroll-btn');
+          const parallaxBgs = document.querySelectorAll('.parallax-bg, .parallax-vid-bg');
+        
+          let isMobile = window.innerWidth <= 992;
+          let ticking = false;
+        
+          // Ensure scroll is at zero during DOM ready as a safeguard
+          window.scrollTo(0, 0);
+        
+          // --- Helper Functions ---
+        
+          /**
+           * Updates header UI based purely on scroll distance across all device sizes.
+           * Header remains open at the top (scrollTop <= 10) and shrinks when scrolling down (> 10).
+           */
+          const updateHeaderUI = (scrollTop = window.scrollY) => {
+            if (scrollTop > 10) {
+              body.classList.add('scrolled');
+              if (navIcons) navIcons.style.display = 'none';
+            } else {
+              body.classList.remove('scrolled');
+              if (navIcons) navIcons.style.display = 'flex';
+            }
+          };
+        
+          // Run initial state check
+          updateHeaderUI();
+        
+          // --- Hero Button Event ---
+          if (scrollBtn && hero) {
+            scrollBtn.addEventListener('click', () => {
+              // Collapse hero (CSS transitions bring main content smoothly up into place)
+              hero.classList.add('collapsed');
+        
+              // Keep header in its natural state based on scroll position
+              updateHeaderUI();
+            });
+          }
+        
+          // --- Window Event Listeners ---
+        
+          // Resize Handler
+          window.addEventListener('resize', () => {
+            isMobile = window.innerWidth <= 992;
+            if (isMobile) {
+              // Keep mobile parallax neutral while preserving scrolled state
+              parallaxBgs.forEach(bg => (bg.style.transform = 'translateY(0)'));
+            }
+            updateHeaderUI();
+          });
+        
+          // High-Performance Consolidated Scroll Handler
+          window.addEventListener('scroll', () => {
+            if (!ticking) {
+              window.requestAnimationFrame(() => {
+                const scrollTop = window.scrollY;
+        
+                // 1. Header resize & nav logic (runs on mobile & desktop)
+                updateHeaderUI(scrollTop);
+        
+                // 2. Parallax Calculation
+                const viewHeight = window.innerHeight;
+                const viewCenter = viewHeight / 2;
+                
+                parallaxBgs.forEach(bg => {
+                  const parent = bg.parentElement;
+                  const rect = parent.getBoundingClientRect();
+                
+                  // Only calculate when the element is visible in the viewport
+                  if (rect.top < viewHeight && rect.bottom > 0) {
+                    const parentCenter = rect.top + rect.height / 2;
+                    const offset = -(parentCenter - viewCenter) * 0.1; // Parallax speed factor
+                    bg.style.transform = `translate3d(0, ${offset.toFixed(2)}px, 0)`;
+                  }
+                });
+                
+                ticking = false;
+                });
+                ticking = true;
+                }
+                });
+        
+          // --- Content Fade-in Observer ---
+          const mediaElements = document.querySelectorAll(
+            '.slide-container-1 > *, .slide-container-2 > *, .slide-container-3 > *'
+          );
+        
+          const observerOptions = {
+            root: null,
+            rootMargin: '50px 0px 150px 0px',
+            threshold: 0,
+          };
+        
+          const fadeInObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+              } else {
+                entry.target.classList.remove('visible');
+              }
+            });
+          }, observerOptions);
+        
+          mediaElements.forEach(element => fadeInObserver.observe(element));
+        });
+        
+        // --- Preloader Script (Window Load) ---
+        window.addEventListener('load', () => {
+          // Ensure we are strictly at the top when preloader finishes
+          window.scrollTo(0, 0);
+        
+          const loader = document.getElementById('portfolio-preloader');
+          if (!loader) return;
+        
+          loader.classList.add('complete');
+        
+          setTimeout(() => {
+            loader.classList.add('fade-out');
+            setTimeout(() => loader.remove(), 800);
+          }, 400);
+        });
+        
+        // Fallback initial preloader progress indicator
+        setTimeout(() => {
+          const loader = document.getElementById('portfolio-preloader');
+          if (loader && !loader.classList.contains('complete')) {
+            loader.style.setProperty('--initial-progress', '40%');
+            const sheet = document.styleSheets[0];
+            if (sheet) {
+              sheet.insertRule(
+                '#portfolio-preloader::before { width: 40%; }',
+                sheet.cssRules.length
+              );
+            }
+          }
+        }, 50);    
+    </script>
+</body>
+</html>
