@@ -9,6 +9,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     
+    <!-- Three.js Library & SVGLoader for the 3D Logo -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/SVGLoader.js"></script>
+    
     <style>
         /* --- Reset & Core CSS --- */
         *, *::before, *::after {
@@ -213,7 +217,7 @@
             width: 65%;
         }
 
-        /* --- Hero Section with WebGL Glass Animation --- */
+        /* --- Hero Section with WebGL Glass Animation & 3D Logo --- */
         #hero {
             position: relative;
             height: 100vh;
@@ -232,6 +236,16 @@
             height: 100%;
             display: block;
             pointer-events: none;
+        }
+
+        /* 3D Wireframe Logo Container */
+        #logo-3d-wrapper {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
         }
 
         #hero.collapsed {
@@ -662,6 +676,7 @@
 
     <section id="hero">
         <canvas id="hero-canvas"></canvas>
+        <div id="logo-3d-wrapper"></div>
         <button id="scroll-btn">
             explore work ↓
         </button>
@@ -720,7 +735,17 @@
                         </div>
                         <div class="slide-container-1">
                             <video class="front-vid" width="100%" autoplay loop muted playsinline>
-                                <source src="Projects/Oblique Audio.webm" type="video/webm">
+                                <source src="Projects/Oblique Audio 1.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="slide-container-2">
+                            <video class="front-vid" width="100%" autoplay loop muted playsinline>
+                                <source src="Projects/Oblique Audio 2.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="slide-container-1">
+                            <video class="front-vid" width="100%" autoplay loop muted playsinline>
+                                <source src="Projects/Oblique Audio 3.mp4" type="video/mp4">
                             </video>
                         </div>
                     </div>
@@ -757,7 +782,7 @@
                     <div class="project-display">
                         <div class="slide-container-2 has-parallax">
                             <video class="parallax-vid-bg" width="100%" autoplay loop muted playsinline>
-                                <source src="Projects/Flow 1 Background.webm" type="video/webm">
+                                <source src="Projects/Flow 1 Background.mp4" type="video/mp4">
                             </video>
                             <video class="front-vid" width="100%" autoplay loop muted playsinline>
                                 <source src="Projects/Flow 1.mov" type='video/mp4; codecs="hvc1"'>
@@ -786,7 +811,7 @@
                     <div class="project-display">
                         <div class="slide-container-2 has-parallax">
                             <video class="parallax-vid-bg" width="100%" autoplay loop muted playsinline>
-                                <source src="Projects/Vectora Background.webm" type="video/webm">
+                                <source src="Projects/Vectora Background.mp4" type="video/mp4">
                             </video>
                             <video class="front-vid" width="100%" autoplay loop muted playsinline>
                                 <source src="Projects/Vectora Interface.mov" type='video/mp4; codecs="hvc1"'>
@@ -795,7 +820,7 @@
                         </div>
                         <div class="slide-container-1">
                             <video class="front-vid" width="100%" autoplay loop muted playsinline>
-                                <source src="Projects/Vectora Macro.webm" type="video/webm">
+                                <source src="Projects/Vectora Macro.mp4" type="video/mp4">
                             </video>
                         </div>
                         <div class="slide-container-1">
@@ -816,7 +841,7 @@
                     <div class="project-display">
                         <div class="slide-container-2 has-parallax">
                             <video class="parallax-vid-bg" width="100%" autoplay loop muted playsinline>
-                                <source src="Projects/Polyshade Background.webm" type="video/webm">
+                                <source src="Projects/Polyshade Background.mp4" type="video/mp4">
                             </video>
                             <video class="front-vid" width="100%" autoplay loop muted playsinline>
                                 <source src="Projects/Polyshade Interface.mov" type='video/mp4; codecs="hvc1"'>
@@ -825,7 +850,7 @@
                         </div>
                         <div class="slide-container-1">
                             <video class="front-vid" width="100%" autoplay loop muted playsinline>
-                                <source src="Projects/Polyshade Details.webm" type="video/webm">
+                                <source src="Projects/Polyshade Details.mp4" type="video/mp4">
                             </video>
                         </div>
                     </div>
@@ -952,8 +977,8 @@
                     float n3 = snoise(st * 0.5 + vec2(-time * 0.10, time * 0.20));
 
                     // Scrolled header color palette match
-                    vec3 colorBase = vec3(0.56, 0.55, 0.54);     
-                    vec3 colorWarm = vec3(0.65, 0.63, 0.61);     
+                    vec3 colorBase = vec3(0.56, 0.55, 0.54);    
+                    vec3 colorWarm = vec3(0.65, 0.63, 0.61);    
                     vec3 colorCharcoal = vec3(0.44, 0.42, 0.41); 
 
                     // Ultra-broad smoothstep boundaries for seamless blob blending
@@ -1071,6 +1096,177 @@
             requestAnimationFrame(render);
         }
 
+        // --- 3D Wireframe Logo Implementation ---
+        function init3DLogo() {
+            const container = document.getElementById('logo-3d-wrapper');
+            if (!container || !THREE || !THREE.SVGLoader) return;
+
+            const scene = new THREE.Scene();
+            
+            const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+            camera.position.z = 250;
+            
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+            
+            const pivot = new THREE.Group();
+            scene.add(pivot);
+            
+            const logoGroup = new THREE.Group();
+            
+            // The exact SVG path provided in the prompt wrapped in a standard viewBox
+            const svgMarkup = `
+            <svg viewBox="0 0 52 90" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0,36.346920534687l-0,-14.632658035995c0,-13.459973030581 8.129252311695,-24.38776367658 24.387761183927,-21.136061607548l4.064629406211,0.812925623479l23.05204107484,4.610408181503c0.303984271232,0.06079745526 0.522796937887,0.3277065442 0.522796907449,0.637711008237l-0.000000000001,0.612124593671c-0.000030509949,0.289376632529 -0.153888579126,0.556921501199 -0.403984751557,0.7024918997c-0.879776027464,0.56403960593 -2.84771821006,2.558707931058 -2.847717848208,8.882847622294l-0.000003604806,19.51021071466c0,10.188993398987 -6.261903372227,19.555688399339 -15.143936432794,23.200892241516c-0.249836341167,0.100127841854 -0.533074896915,0.020753065328 -0.756002613425,-0.130068071431c-0.22292771651,-0.15082113676 -0.356486259764,-0.381186531097 -0.356486098719,-0.650340357155c-0.001322220437,-4.566021014796 -0.002079365151,-47.7676587652 -0.002079365151,-47.7676587652c-0.000000057045,-0.387505622012 -0.273516030115,-0.721141939941 -0.653496439392,-0.79713862182l-16.841923958989,-3.368384791798c-0.095526623756,-0.019104740899 -0.194586456714,0.005626293548 -0.269924020271,0.067388567537c-0.075337563558,0.061762273988 -0.119015210108,0.154048447179 -0.119015403124,0.251466756398l0.000000000005,0.71732033279c0.000069765835,0.303706512646 0.169427579261,0.582046856542 0.43912184226,0.721698763784c1.468752300954,0.77623966289 2.812579943516,2.657270072251 2.812579943516,8.569783409298l0,41.605524349011c0.000012222325,0.259259120816 -0.123637901017,0.497238194988 -0.3328627079,0.650340357155c-0.209224806883,0.153102162167 -0.478928501764,0.208513789775 -0.726034877944,0.130068071431c-9.762654155841,-3.187412537723 -16.825462235927,-12.379909239996 -16.825462235927,-23.200892241516Zm43.48684196592,42.272123215095c0.304354086018,-0.000022824025 0.583226389422,0.169965665117 0.722659385625,0.440501891465c0.139432996203,0.270536226348 0.11606718958,0.596296701433 -0.06054928816,0.844163661691c-4.434961729812,6.114985691521 -11.636804306733,10.096290697062 -19.761193088856,10.096290697062c-13.063289458018,0 -23.741450144287,-10.293170211174 -24.359499883712,-23.204528458429c-0.012282073333,-0.30845780941 0.101670462037,-0.608600257891 0.315569288702,-0.831185885151c0.213898826665,-0.222585627259 0.509269696937,-0.348389914518 0.817971931316,-0.348390400591c3.018900678487,-0.003654798482 12.657116079558,-0.003655893866 15.588885011222,-0.003656292269c0.589869410223,0.000020401884 1.081962956929,0.450724871007 1.133674499714,1.038323235433c0.592712752481,6.694097447762 6.930069250264,11.968481550789 16.210163393144,11.968481550789l9.392318751005,0Z"/>
+            </svg>`;
+            
+            const loader = new THREE.SVGLoader();
+            const svgData = loader.parse(svgMarkup);
+            
+            const material = new THREE.LineBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.9,
+                linewidth: 1
+            });
+            
+            svgData.paths.forEach((path) => {
+                const shapes = path.toShapes(true);
+                shapes.forEach((shape) => {
+                    const extrudeSettings = {
+                        depth: 14,
+                        bevelEnabled: false,
+                        curveSegments: 24
+                    };
+                    const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+                    
+                    // 1. EdgesGeometry gives us the sharp 2D front and back perimeters
+                    const edgesGeometry = new THREE.EdgesGeometry(geometry, 20); 
+                    const line = new THREE.LineSegments(edgesGeometry, material);
+                    logoGroup.add(line);
+
+                    // 2. Silhouette Shader adds perfectly tracked depth-connecting lines to the 3D curves
+                    const silhouetteMaterial = new THREE.ShaderMaterial({
+                        uniforms: {
+                            color: { value: new THREE.Color(0xffffff) },
+                            opacity: { value: 0.9 }
+                        },
+                        vertexShader: `
+                            varying vec3 vNormal;
+                            varying vec3 vViewPosition;
+                            void main() {
+                                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                                vNormal = normalize(normalMatrix * normal);
+                                vViewPosition = -mvPosition.xyz;
+                                gl_Position = projectionMatrix * mvPosition;
+                            }
+                        `,
+                        fragmentShader: `
+                            uniform vec3 color;
+                            uniform float opacity;
+                            varying vec3 vNormal;
+                            varying vec3 vViewPosition;
+                            void main() {
+                                vec3 normal = normalize(vNormal);
+                                vec3 viewDir = normalize(vViewPosition);
+                                float fresnel = abs(dot(normal, viewDir));
+                                
+                                // Sharp falloff creating a line specifically where faces turn away from camera (silhouette)
+                                float edge = smoothstep(0.15, 0.0, fresnel);
+                                
+                                // Prevent front/back flat caps from coloring at all to prevent depth occlusion
+                                if (edge < 0.01) discard; 
+                                
+                                gl_FragColor = vec4(color, edge * opacity);
+                            }
+                        `,
+                        transparent: true,
+                        depthWrite: false, // Ensures we can see back silhouettes just like a wireframe
+                        side: THREE.DoubleSide
+                    });
+                    
+                    const silhouetteMesh = new THREE.Mesh(geometry, silhouetteMaterial);
+                    logoGroup.add(silhouetteMesh);
+                });
+            });
+            
+            // Align and center the two shapes properly
+            const box = new THREE.Box3().setFromObject(logoGroup);
+            const center = box.getCenter(new THREE.Vector3());
+            logoGroup.position.sub(center);
+            
+            pivot.add(logoGroup);
+            
+            let targetScale = 1;
+            function resize() {
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+                renderer.setSize(width, height);
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+                
+                // Make the geometry fill roughly 2/3 of the view's height
+                const fov = camera.fov * (Math.PI / 180);
+                const viewHeight = 2 * Math.tan(fov / 2) * camera.position.z;
+                const targetHeight = viewHeight * (2 / 3);
+                
+                const size = box.getSize(new THREE.Vector3());
+                targetScale = targetHeight / size.y;
+                
+                // SVG coordinates plot Y downwards, flip to match Three.js Y-up
+                pivot.scale.set(targetScale, -targetScale, targetScale);
+            }
+            
+            window.addEventListener('resize', resize);
+            resize(); 
+            
+            let targetRotationX = 0;
+            let targetRotationY = 0;
+            
+            const isMobile = () => window.innerWidth <= 768 || ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+            
+            window.addEventListener('mousemove', (e) => {
+                if (isMobile()) return;
+                // Soft constraints: +/- 0.35 radians max rotation (doesn't turn too far away from centre)
+                const x = (e.clientX / window.innerWidth) * 2 - 1;
+                const y = -(e.clientY / window.innerHeight) * 2 + 1;
+                
+                targetRotationY = x * 0.35;
+                targetRotationX = -y * 0.35; 
+            });
+            
+            const clock = new THREE.Clock();
+            
+            function animate() {
+                // Pause rendering if user scrolled away
+                if (document.getElementById('hero').classList.contains('collapsed')) {
+                    requestAnimationFrame(animate);
+                    return;
+                }
+                
+                // Clamp dt to a max of 0.1s to prevent extreme rotations when returning to tab
+                const dt = Math.min(clock.getDelta(), 0.1);
+                const time = clock.getElapsedTime();
+                
+                if (isMobile()) {
+                    // Wander slowly mimicking cursor movement within the centre area
+                    targetRotationY = Math.sin(time * 0.6) * 0.25 + Math.cos(time * 0.4) * 0.15;
+                    targetRotationX = Math.cos(time * 0.5) * 0.25 + Math.sin(time * 0.7) * 0.15;
+                }
+                
+                // Smooth interpolation (Lerp) towards the target
+                pivot.rotation.x += (targetRotationX - pivot.rotation.x) * 4.0 * dt;
+                pivot.rotation.y += (targetRotationY - pivot.rotation.y) * 4.0 * dt;
+                
+                renderer.render(scene, camera);
+                requestAnimationFrame(animate);
+            }
+            
+            requestAnimationFrame(animate);
+        }
+
         // --- Core Site Logic & Lifecycle ---
         if ('scrollRestoration' in history) {
             history.scrollRestoration = 'manual';
@@ -1079,6 +1275,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             initHeroCanvas();
+            init3DLogo(); // Initialize the 3D Wireframe Logo
 
             const body = document.body;
             const navIcons = document.querySelector('.nav-icons');
@@ -1137,7 +1334,7 @@
                     else {
                         const bgStyle = window.getComputedStyle(el).backgroundImage;
                         if (bgStyle && bgStyle !== 'none') {
-                            const src = bgStyle.replace(/(^url\(\"|^\'|^\(|\"|\'|\)$)/g, '').replace(/url\(['"]?([^'"]+)['"]?\)/, '$1');
+                            const src = bgStyle.replace(/(^url\(\"|^\'|^\(\vert{}\"\vert{}\'\vert{}\)$)/g, '').replace(/url\(['"]?([^'"]+)['"]?\)/, '$1');
                             const img = new Image();
                             img.src = src;
                             img.onload = () => el.classList.add('is-loaded');
