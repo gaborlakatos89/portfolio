@@ -33,6 +33,25 @@
             overflow-x: hidden;
         }
 
+        body::after {
+            content: '';
+            position: fixed;
+            z-index: 900;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 12vh;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse 78% 48% at 50% 108%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.04) 52%, transparent 100%),
+                radial-gradient(ellipse 110% 26% at 50% 0%, rgba(255, 255, 255, 0.07) 0%, transparent 75%),
+                linear-gradient(to bottom, rgba(241, 241, 240, 0), rgba(241, 241, 240, 0.12));
+            -webkit-backdrop-filter: blur(3px);
+            backdrop-filter: blur(3px);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.25) 45%, #000 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.25) 45%, #000 100%);
+        }
+
         /* Prevent manual scrolling until unlocked by clicking explore work */
         body:not(.unlocked) {
             overflow: hidden !important;
@@ -85,11 +104,15 @@
             overflow: visible;
             -webkit-backdrop-filter: blur(0px);
             backdrop-filter: blur(0px);
-            transition: height 0.4s cubic-bezier(0.25, 1, 0.5, 1), 
+            transition: height 0.45s cubic-bezier(0.25, 1, 0.5, 1),
                         backdrop-filter 0.4s cubic-bezier(0.25, 1, 0.5, 1),
                         -webkit-backdrop-filter 0.4s cubic-bezier(0.25, 1, 0.5, 1);
             transform: translate3d(0, 0, 0);
             will-change: height, transform, backdrop-filter;
+        }
+
+        header.scrolling-header-dynamic {
+            transition-duration: 0s, 0.4s, 0.4s;
         }
 
         header::before,
@@ -143,7 +166,7 @@
             height: 65px;
             width: auto;
             object-fit: contain;
-            transform-origin: left center;
+            transform-origin: center center;
             transition: transform 0.4s ease;
             will-change: transform;
         }
@@ -340,12 +363,12 @@
         @keyframes typingReveal {
             from {
                 clip-path: inset(0 100% 0 0);
-                transform: translateY(12px);
+                translate: 0 12px;
                 opacity: 0;
             }
             to {
-                clip-path: inset(0 0 0 0);
-                transform: translateY(0);
+                clip-path: inset(-8px 0 -8px 0);
+                translate: 0 0;
                 opacity: 1;
             }
         }
@@ -378,6 +401,11 @@
             line-height: 1.4;
             color: #75706E;
             padding-right: 10px;
+        }
+
+        .project-desc-word {
+            display: inline-block;
+            will-change: transform;
         }
 
         .project-content-column,
@@ -653,7 +681,6 @@
 </head>
 <body>
     <div id="portfolio-preloader"></div>
-
     <header>
         <div class="header-container">
             <a href="#" class="logo-link">
@@ -1405,6 +1432,7 @@
                         Array.from(hiddenSections).slice(0, 2).forEach(section => {
                             section.classList.remove('project-section-hidden');
                         });
+                        prepareDescriptionLines();
                         
                         refreshParallaxElements();
                         bindMediaLoadingGates();
@@ -1434,7 +1462,140 @@
 
             const LERP_FACTOR = 0.08;
 
+            // Split descriptions into visual lines so each line can follow the
+            // scroll with a small spring-like delay. Rebuild after layout changes.
+            const descriptionLines = [];
+            const prepareDescriptionLines = () => {
+                descriptionLines.length = 0;
+                document.querySelectorAll('.project-desc').forEach(desc => {
+                    if (!desc.getClientRects().length) return;
+                    let wordSpans = Array.from(desc.querySelectorAll('.project-desc-word'));
+                    if (!wordSpans.length) {
+                        const words = desc.textContent.trim().split(/\s+/);
+                        desc.textContent = '';
+                        wordSpans = words.map((word, index) => {
+                            const span = document.createElement('span');
+                            span.className = 'project-desc-word';
+                            span.textContent = word;
+                            desc.appendChild(span);
+                            if (index < words.length - 1) desc.appendChild(document.createTextNode(' '));
+                            return span;
+                        });
+                    }
+                    let lineTop = null;
+                    let lineIndex = -1;
+                    wordSpans.forEach(span => {
+                        const top = Math.round(span.getBoundingClientRect().top);
+                        if (top !== lineTop) { lineTop = top; lineIndex += 1; }
+                        descriptionLines.push({
+                            element: span,
+                            lineIndex,
+                            currentY: Number(span.dataset.motionY || 0),
+                            velocityY: Number(span.dataset.motionVelocity || 0),
+                            lastSampleTime: Number(span.dataset.motionSampleTime || 0)
+                        });
+                    });
+                    desc.dataset.motionPrepared = 'true';
+                });
+            };
+            prepareDescriptionLines();
+
+            let metaScrollSamples = [];
+            let previousMetaScroll = window.scrollY;
+            const metaTitles = Array.from(document.querySelectorAll('.project-title'));
+            const header = document.querySelector('header');
+            let headerOffsetY = 0;
+            let headerVelocityY = 0;
+            let headerLastSampleTime = 0;
+            let headerWasCollapsed = false;
+            let headerDynamicReady = false;
+            if (header) {
+                header.addEventListener('transitionend', event => {
+                    if (event.propertyName !== 'height' || !body.classList.contains('scrolled')) return;
+                    headerDynamicReady = true;
+                    header.classList.add('scrolling-header-dynamic');
+                });
+            }
+            const delayedScrollSample = (now, delay, afterTime) => {
+                for (let i = metaScrollSamples.length - 1; i >= 0; i--) {
+                    const sample = metaScrollSamples[i];
+                    if (sample.time <= now - delay && sample.time > afterTime) return sample;
+                }
+                return null;
+            };
+            const updateMetaMotion = (now) => {
+                const isHeaderCollapsed = body.classList.contains('scrolled');
+                if (!isHeaderCollapsed) {
+                    headerWasCollapsed = false;
+                    headerDynamicReady = false;
+                    headerOffsetY = 0;
+                    headerVelocityY = 0;
+                    if (header) {
+                        header.classList.remove('scrolling-header-dynamic');
+                        header.style.height = '';
+                    }
+                } else if (header) {
+                    if (!headerWasCollapsed) {
+                        headerWasCollapsed = true;
+                        headerDynamicReady = false;
+                        header.classList.remove('scrolling-header-dynamic');
+                        header.style.height = '';
+                        headerLastSampleTime = metaScrollSamples.length
+                            ? metaScrollSamples[metaScrollSamples.length - 1].time
+                            : now;
+                    }
+                    if (headerDynamicReady) {
+                        const sample = delayedScrollSample(now, 0, headerLastSampleTime);
+                        if (sample) {
+                            headerVelocityY = Math.max(-1.2, Math.min(1.2, headerVelocityY - sample.delta * 0.09));
+                            headerLastSampleTime = sample.time;
+                        }
+                        headerVelocityY -= headerOffsetY * 0.055;
+                        headerVelocityY *= 0.40;
+                        headerOffsetY = Math.max(-4, Math.min(9, headerOffsetY + headerVelocityY));
+
+                        const width = window.innerWidth;
+                        const baseHeight = width <= 576 ? 40 : width <= 768 ? 45 : 50;
+                        header.style.height = `${baseHeight + headerOffsetY}px`;
+                    }
+                }
+
+                metaTitles.forEach(title => {
+                    const currentY = Number(title.dataset.motionY || 0);
+                    let velocityY = Number(title.dataset.motionVelocity || 0);
+                    const sample = delayedScrollSample(now, 0, Number(title.dataset.motionSampleTime || 0));
+                    if (sample) {
+                        velocityY = Math.max(-2.8, Math.min(2.8, velocityY - sample.delta * 0.22));
+                        title.dataset.motionSampleTime = sample.time;
+                    }
+                    // Keep pulling toward rest during active scrolling; each new
+                    // scroll impulse still adds motion on top of this return.
+                    velocityY -= currentY * 0.070;
+                    velocityY *= 0.38;
+                    const nextY = Math.max(-10, Math.min(10, currentY + velocityY));
+                    title.dataset.motionY = nextY;
+                    title.dataset.motionVelocity = velocityY;
+                    title.style.transform = `translate3d(0, ${nextY.toFixed(2)}px, 0)`;
+                });
+                descriptionLines.forEach(line => {
+                    const sample = delayedScrollSample(now, 28 + line.lineIndex * 24, line.lastSampleTime);
+                    if (sample) {
+                        line.velocityY = Math.max(-2.4, Math.min(2.4, line.velocityY - sample.delta * 0.18));
+                        line.lastSampleTime = sample.time;
+                    }
+                    line.velocityY -= line.currentY * 0.068;
+                    line.velocityY *= 0.40;
+                    line.currentY = Math.max(-9, Math.min(9, line.currentY + line.velocityY));
+                    line.element.dataset.motionY = line.currentY;
+                    line.element.dataset.motionVelocity = line.velocityY;
+                    line.element.dataset.motionSampleTime = line.lastSampleTime;
+                    line.element.style.transform = `translate3d(0, ${line.currentY.toFixed(2)}px, 0)`;
+                });
+                metaScrollSamples = metaScrollSamples.filter(sample => sample.time > now - 1200);
+            };
+
             const render = () => {
+                updateMetaMotion(performance.now());
                 parallaxData.forEach(item => {
                     item.currentY += (item.targetY - item.currentY) * LERP_FACTOR;
                     if (Math.abs(item.targetY - item.currentY) > 0.01) {
@@ -1460,6 +1621,9 @@
 
             window.addEventListener('scroll', () => {
                 const scrollTop = window.scrollY;
+                const now = performance.now();
+                metaScrollSamples.push({ time: now, delta: scrollTop - previousMetaScroll });
+                previousMetaScroll = scrollTop;
                 updateHeaderUI(scrollTop);
                 calculateParallaxTargets();
                 checkInfiniteScroll();
@@ -1468,6 +1632,8 @@
             }, { passive: true });
 
             window.addEventListener('resize', () => {
+                document.querySelectorAll('.project-desc').forEach(desc => { delete desc.dataset.motionPrepared; });
+                prepareDescriptionLines();
                 updateHeaderUI();
                 calculateParallaxTargets();
                 checkMetasOffscreenBottom();
