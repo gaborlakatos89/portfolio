@@ -24,6 +24,8 @@
 
         html {
             scroll-behavior: smooth;
+            --visible-viewport-height: 100vh;
+            --bottom-overlay-height: 12vh;
         }
 
         body {
@@ -40,7 +42,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            height: 12vh;
+            height: var(--bottom-overlay-height);
             pointer-events: none;
             background:
                 radial-gradient(ellipse 78% 48% at 50% 108%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.04) 52%, transparent 100%),
@@ -52,16 +54,13 @@
             mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.25) 45%, #000 100%);
         }
 
-        /* Keep fixed bottom treatments aligned with the visible mobile viewport. */
-        @supports (height: 100dvh) {
-            body::after {
-                height: calc(12dvh + env(safe-area-inset-bottom, 0px));
-            }
-        }
-
         /* Prevent manual scrolling until unlocked by clicking explore work */
         body:not(.unlocked) {
             overflow: hidden !important;
+        }
+
+        body:not(.unlocked) main {
+            visibility: hidden;
         }
 
         /* Global image smoothing fix for scaled down assets */
@@ -250,18 +249,13 @@
         /* --- Hero Section with WebGL Glass Animation & 3D Logo --- */
         #hero {
             position: relative;
-            height: 100vh;
+            height: var(--visible-viewport-height, 100vh);
             display: flex;
             justify-content: center;
             align-items: center;
             background-color: #908C8A;
             transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
             overflow: hidden;
-        }
-
-        /* 100vh can include Safari's collapsed browser controls; dvh tracks the visible area. */
-        @supports (height: 100dvh) {
-            #hero { height: 100dvh; }
         }
 
         #hero-canvas {
@@ -1109,6 +1103,7 @@
             }
 
             window.addEventListener('resize', resize);
+            if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
             resize();
 
             let startTime = performance.now();
@@ -1240,8 +1235,8 @@
             
             let targetScale = 1;
             function resize() {
-                const width = window.innerWidth;
-                const height = window.innerHeight;
+                const width = container.clientWidth || window.innerWidth;
+                const height = container.clientHeight || window.innerHeight;
                 renderer.setSize(width, height);
                 camera.aspect = width / height;
                 camera.updateProjectionMatrix();
@@ -1259,6 +1254,7 @@
             }
             
             window.addEventListener('resize', resize);
+            if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
             resize(); 
             
             let targetRotationX = 0;
@@ -1307,6 +1303,22 @@
         }
 
         // --- Core Site Logic & Lifecycle ---
+        // Safari's visual viewport changes as its browser controls expand and collapse.
+        function syncVisibleViewport() {
+            const visualHeight = window.visualViewport
+                ? window.visualViewport.height
+                : window.innerHeight;
+            const height = `${visualHeight}px`;
+            document.documentElement.style.setProperty('--visible-viewport-height', height);
+            document.documentElement.style.setProperty('--bottom-overlay-height', `${visualHeight * 0.12}px`);
+        }
+        syncVisibleViewport();
+        window.addEventListener('resize', syncVisibleViewport, { passive: true });
+        window.addEventListener('orientationchange', syncVisibleViewport, { passive: true });
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', syncVisibleViewport, { passive: true });
+        }
+
         if ('scrollRestoration' in history) {
             history.scrollRestoration = 'manual';
         }
