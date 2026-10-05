@@ -40,8 +40,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            height: 12vh;
-            height: 12lvh;
+            height: calc(12vh + env(safe-area-inset-bottom, 0px));
+            height: calc(12lvh + env(safe-area-inset-bottom, 0px));
             pointer-events: none;
             background:
                 radial-gradient(ellipse 78% 48% at 50% 108%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.04) 52%, transparent 100%),
@@ -244,8 +244,8 @@
         /* --- Hero Section with WebGL Glass Animation & 3D Logo --- */
         #hero {
             position: relative;
-            height: 100vh;
-            height: 100lvh;
+            height: calc(100vh + env(safe-area-inset-bottom, 0px));
+            height: calc(100lvh + env(safe-area-inset-bottom, 0px));
             display: flex;
             justify-content: center;
             align-items: center;
