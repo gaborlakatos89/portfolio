@@ -24,8 +24,6 @@
 
         html {
             scroll-behavior: smooth;
-            --visible-viewport-height: 100vh;
-            --bottom-overlay-height: 12vh;
         }
 
         body {
@@ -42,7 +40,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            height: var(--bottom-overlay-height);
+            height: 12vh;
+            height: 12lvh;
             pointer-events: none;
             background:
                 radial-gradient(ellipse 78% 48% at 50% 108%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.04) 52%, transparent 100%),
@@ -57,10 +56,6 @@
         /* Prevent manual scrolling until unlocked by clicking explore work */
         body:not(.unlocked) {
             overflow: hidden !important;
-        }
-
-        body:not(.unlocked) main {
-            visibility: hidden;
         }
 
         /* Global image smoothing fix for scaled down assets */
@@ -249,7 +244,8 @@
         /* --- Hero Section with WebGL Glass Animation & 3D Logo --- */
         #hero {
             position: relative;
-            height: var(--visible-viewport-height, 100vh);
+            height: 100vh;
+            height: 100lvh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -1103,7 +1099,6 @@
             }
 
             window.addEventListener('resize', resize);
-            if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
             resize();
 
             let startTime = performance.now();
@@ -1254,7 +1249,6 @@
             }
             
             window.addEventListener('resize', resize);
-            if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
             resize(); 
             
             let targetRotationX = 0;
@@ -1303,22 +1297,6 @@
         }
 
         // --- Core Site Logic & Lifecycle ---
-        // Safari's visual viewport changes as its browser controls expand and collapse.
-        function syncVisibleViewport() {
-            const visualHeight = window.visualViewport
-                ? window.visualViewport.height
-                : window.innerHeight;
-            const height = `${visualHeight}px`;
-            document.documentElement.style.setProperty('--visible-viewport-height', height);
-            document.documentElement.style.setProperty('--bottom-overlay-height', `${visualHeight * 0.12}px`);
-        }
-        syncVisibleViewport();
-        window.addEventListener('resize', syncVisibleViewport, { passive: true });
-        window.addEventListener('orientationchange', syncVisibleViewport, { passive: true });
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', syncVisibleViewport, { passive: true });
-        }
-
         if ('scrollRestoration' in history) {
             history.scrollRestoration = 'manual';
         }
