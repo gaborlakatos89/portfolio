@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Gábor Lakatos | Portfolio</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,6 +50,13 @@
             backdrop-filter: blur(3px);
             -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.25) 45%, #000 100%);
             mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.25) 45%, #000 100%);
+        }
+
+        /* Keep fixed bottom treatments aligned with the visible mobile viewport. */
+        @supports (height: 100dvh) {
+            body::after {
+                height: calc(12dvh + env(safe-area-inset-bottom, 0px));
+            }
         }
 
         /* Prevent manual scrolling until unlocked by clicking explore work */
@@ -250,6 +257,11 @@
             background-color: #908C8A;
             transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
             overflow: hidden;
+        }
+
+        /* 100vh can include Safari's collapsed browser controls; dvh tracks the visible area. */
+        @supports (height: 100dvh) {
+            #hero { height: 100dvh; }
         }
 
         #hero-canvas {
