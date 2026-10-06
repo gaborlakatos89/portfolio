@@ -1780,6 +1780,1739 @@
             requestAnimationFrame(render);
         });
 
+        let portfolioPreloaderDismissed = false;
+        const dismissPortfolioPreloader = () => {
+            const loader = document.getElementById('portfolio-preloader');
+            if (!loader || portfolioPreloaderDismissed) return;
+            portfolioPreloaderDismissed = true;
+
+            loader.classList.add('complete');
+            setTimeout(() => {
+                loader.classList.add('fade-out');
+                setTimeout(() => loader.remove(), 800);
+            }, 400);
+        };
+
+        window.addEventListener('load', () => {
+            window.scrollTo(0, 0);
+            dismissPortfolioPreloader();
+        });
+
+        // Let the page appear even if a remote asset keeps the load event pending.
+        setTimeout(dismissPortfolioPreloader, 8000);
+
+        setTimeout(() => {
+            const loader = document.getElementById('portfolio-preloader');
+            if (loader && !loader.classList.contains('complete')) {
+                loader.style.setProperty('--initial-progress', '40%');
+            }
+        }, 50);
+    </script>
+</body>
+</html>
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            z-index: 1000;
+            overflow: visible;
+            -webkit-backdrop-filter: blur(0px);
+            backdrop-filter: blur(0px);
+            transition: height 0.45s cubic-bezier(0.25, 1, 0.5, 1),
+                        backdrop-filter 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                        -webkit-backdrop-filter 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            transform: translate3d(0, 0, 0);
+            will-change: height, transform, backdrop-filter;
+        }
+
+        header.scrolling-header-dynamic {
+            transition-duration: 0s, 0.4s, 0.4s;
+        }
+
+        header::before,
+        header::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        header::before {
+            background: linear-gradient(to top, #5c5754 0%, 10%, #403C3A 80%);
+            opacity: 1;
+        }
+
+        header::after {
+            background: linear-gradient(to top, rgba(255, 255, 255, 0.25) 0%, 3%, rgba(255, 255, 255, 0) 60%), rgba(144, 140, 138, 0.6);
+            opacity: 0;
+        }
+
+        body.scrolled header {
+            height: 50px;
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+        }
+
+        body.scrolled header::before { opacity: 0; }
+        body.scrolled header::after { opacity: 1; }
+
+        .header-container {
+            max-width: 1400px;
+            height: 100%;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .logo-link,
+        .logo-name-part {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            text-decoration: none;
+        }
+
+        .logo-img {
+            height: 65px;
+            width: auto;
+            object-fit: contain;
+            transform-origin: left center;
+            transition: transform 0.4s ease;
+            will-change: transform;
+        }
+
+        .logo-text-part {
+            padding-left: 16px;
+            max-width: 185px;
+            transition: clip-path 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease, transform 0.4s ease;
+            clip-path: inset(0 0 0 0);
+            opacity: 1;
+            will-change: transform, clip-path, opacity;
+        }
+
+        body.scrolled .logo-img {
+            transform: scale(0.5);
+        }
+
+        body.scrolled .logo-text-part {
+            clip-path: inset(0 100% 0 0);
+            opacity: 0;
+            transform: translateX(calc(-1 * (var(--img-rendered-width, 65px) * 0.35)));
+        }
+
+        .nav-icons {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            height: 100%;
+        }
+
+        .nav-icons a {
+            --icon-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: var(--icon-size);
+            height: var(--icon-size);
+            padding: 10px 4px;
+            color: inherit;
+            text-decoration: none;
+            box-sizing: content-box;
+            transition: transform 0.25s ease;
+        }
+
+        .nav-icons a:hover {
+            transform: translateY(-2px);
+        }
+
+        .nav-icons a img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .nav-icons a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 1px;
+            background-color: #FFFFFF;
+            border-radius: 2px;
+            transform: translateX(-50%);
+            transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-icons a:hover::after {
+            width: 65%;
+        }
+
+        /* --- Hero Section with WebGL Glass Animation & 3D Logo --- */
+        #hero {
+            position: relative;
+            height: 100vh; /* Fallback for browsers without small-viewport units. */
+            height: 100svh;
+            height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #908C8A;
+            transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+            overflow: hidden;
+        }
+
+        #hero-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            pointer-events: none;
+        }
+
+        /* 3D Wireframe Logo Container */
+        #logo-3d-wrapper {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        #hero.collapsed {
+            height: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #hero::after {
+            content: '';
+            position: absolute;
+            z-index: 6;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            height: clamp(150px, 28svh, 260px);
+            background: linear-gradient(
+                to bottom,
+                rgba(241, 241, 240, 0) 0%,
+                rgba(241, 241, 240, 0.015) 25%,
+                rgba(241, 241, 240, 0.04) 45%,
+                rgba(241, 241, 240, 0.10) 62%,
+                rgba(241, 241, 240, 0.24) 76%,
+                rgba(241, 241, 240, 0.48) 87%,
+                rgba(241, 241, 240, 0.78) 95%,
+                #F1F1F0 100%
+            );
+            pointer-events: none;
+        }
+
+        #scroll-btn {
+            position: relative;
+            z-index: 10;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 16px 24px;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-radius: 26px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+        }
+
+        #scroll-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        #scroll-btn:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        #scroll-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        #scroll-btn:hover::after {
+            left: 100%;
+        }
+
+        /* --- Main & Gallery --- */
+        main {
+            max-width: 1400px;
+            margin: 180px auto 20px auto;
+            padding: 0 40px;
+        }
+
+        body:not(.unlocked) main {
+            visibility: hidden;
+        }
+
+        .gallery-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-section {
+            display: flex;
+            position: relative;
+            padding-bottom: 60px;
+        }
+
+        .project-section-hidden {
+            display: none;
+        }
+
+        .project-meta {
+            width: 265px;
+            padding-right: 10px;
+        }
+
+        .sticky-meta {
+            width: 100%;
+            position: sticky;
+            top: 65px;
+            padding-top: 10px;
+            height: fit-content;
+        }
+
+        /* Meta Animations */
+        @keyframes typingReveal {
+            from {
+                clip-path: inset(0 100% 0 0);
+                translate: 0 12px;
+                opacity: 0;
+            }
+            to {
+                clip-path: inset(-8px 0 -8px 0);
+                translate: 0 0;
+                opacity: 1;
+            }
+        }
+
+        .project-title,
+        .project-desc {
+            opacity: 0;
+            clip-path: inset(0 100% 0 0);
+            will-change: opacity, transform, clip-path;
+        }
+
+        .project-meta.meta-visible .project-title {
+            animation: typingReveal 0.24s linear forwards;
+        }
+
+        .project-meta.meta-visible .project-desc {
+            animation: typingReveal 0.24s linear 0.08s forwards;
+        }
+
+        .project-title {
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            color: #403C3A;
+        }
+
+        .project-desc {
+            font-size: 0.75rem;
+            line-height: 1.4;
+            color: #75706E;
+            padding-right: 10px;
+        }
+
+        .project-desc-word {
+            display: inline-block;
+            will-change: transform;
+        }
+
+        .project-content-column,
+        .project-display {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-display {
+            overflow: hidden;
+            line-height: 0;
+            font-size: 0;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            contain: paint layout;
+        }
+
+        .project-display > [class*="slide-container-"]:first-child {
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+        }
+
+        .project-display > [class*="slide-container-"]:last-child {
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+        }
+
+        [class*="slide-container-"] {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            overflow: hidden;
+            background-color: transparent;
+            display: block;
+            margin-bottom: -1px;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform: translate3d(0, 0, 0);
+            -webkit-transform: translate3d(0, 0, 0);
+            -webkit-font-smoothing: subpixel-antialiased;
+            box-sizing: border-box;
+        }
+
+        .has-parallax.slide-container-2 { aspect-ratio: 4 / 3; }
+        .has-parallax.slide-container-3 { aspect-ratio: 1 / 1; }
+
+        .has-parallax .front-img,
+        .has-parallax .front-vid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        [class*="slide-container-"] > * {
+            opacity: 0 !important;
+            transition: none !important;
+        }
+
+        [class*="slide-container-"] > *.is-loaded {
+            opacity: 1 !important;
+        }
+
+        .parallax-bg,
+        .parallax-vid-bg {
+            position: absolute;
+            top: -10%;
+            left: 0;
+            width: 100%;
+            height: 120%;
+            will-change: transform;
+            transform: translateY(0);
+            overflow: hidden;
+        }
+
+        .parallax-bg {
+            background-size: cover;
+            background-position: center;
+        }
+
+        .parallax-vid-bg {
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        .front-img,
+        .front-vid {
+            position: relative;
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            z-index: 2;
+            pointer-events: none;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            image-rendering: auto;
+            image-rendering: smooth;
+        }
+
+        /* --- Back to Top --- */
+        .back-to-top-wrapper {
+            display: flex;
+            justify-content: center;
+            padding: 40px 0 20px 0;
+            width: 100%;
+        }
+
+        .back-to-top-btn {
+            background: rgba(64, 60, 58, 0.08);
+            border: 1px solid rgba(64, 60, 58, 0.1);
+            color: #403C3A;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transform: scale(0);
+            pointer-events: none;
+            transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                        transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        background 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                        color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
+        }
+
+        .back-to-top-btn.is-visible {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        .back-to-top-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+            transition: transform 0.4s ease;
+        }
+
+        .back-to-top-btn.is-visible:hover {
+            background: #403C3A;
+            color: #FFFFFF;
+            transform: scale(1) translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .back-to-top-btn.is-visible:hover svg {
+            transform: translateY(-2px);
+        }
+
+        .back-to-top-btn.is-visible:active {
+            transform: scale(0.95) translateY(-1px);
+        }
+
+        /* --- Responsive Media Queries --- */
+        @media (max-width: 1400px) {
+            .project-display > [class*="slide-container-"]:first-child {
+                border-top-left-radius: 30px;
+                border-top-right-radius: 30px;
+            }
+            .project-display > [class*="slide-container-"]:last-child {
+                border-bottom-left-radius: 30px;
+                border-bottom-right-radius: 30px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .project-title {
+                font-size: 0.9rem;
+                margin-bottom: 5px;
+            }
+            .project-desc {
+                line-height: 1.3;
+            }
+        }
+
+        @media (max-width: 992px) {
+            header { height: 100px; }
+            .nav-icons { gap: 12px; }
+            .nav-icons a { --icon-size: 18px; }
+            body.scrolled header { height: 50px; }
+            .header-container { padding: 0 34px; }
+            
+            main { 
+                margin-top: 120px; 
+                padding: 0 20px 0 0; 
+            }
+            
+            .logo-img { transform: scale(0.85); }
+            body.scrolled .logo-img { transform: scale(0.5); }
+            .logo-text-part { padding-left: 8px; max-width: 150px; }
+            body.scrolled .logo-text-part { transform: translateX(calc(-1 * (var(--img-rendered-width, 65px) * 0.25))); }
+            .project-section { flex-direction: column; padding-bottom: 50px; }
+            
+            .project-content-column {
+                padding-left: 20px;
+            }
+
+            .project-meta { 
+                width: 100%; 
+                padding-left: 35px; 
+                padding-right: 0;
+                margin-bottom: 17px; 
+                position: relative;
+                display: flex;
+                align-items: center;
+            }
+
+            .project-title {
+                line-height: 0.8;
+                padding-bottom: 1px;
+            }
+
+            .sticky-meta { position: relative; top: 0; }
+        }
+
+        @media (max-width: 768px) {
+            header { height: 70px; }
+            body.scrolled header { height: 45px; }
+            .header-container { padding: 0 36px; }
+            .nav-icons { gap: 10px; }
+            main { margin-top: 80px; padding: 0 20px 0 0; }
+            .logo-img { transform: scale(0.68); }
+            body.scrolled .logo-img { transform: scale(0.45); }
+            .logo-text-part { padding-left: 0px; max-width: 130px; }
+            body.scrolled .logo-text-part { transform: translateX(calc(-1 * (var(--img-rendered-width, 65px) * 0.2))); }
+            #scroll-btn { padding: 12px 20px; font-size: 0.85rem; border-radius: 20px; }
+        }
+
+        @media (max-width: 576px) {
+            .header-container { padding: 0 22px; }
+            body.scrolled header { height: 40px; }
+            main { margin-top: 82px; padding: 0 7px 0 0; }
+            .project-section { padding-bottom: 30px; }
+            .project-content-column { padding-left: 7px; }
+            .logo-text-part { padding-left: 0px; max-width: 125px; }
+            .project-meta { padding-left: 22px; padding-right: 0; margin-bottom: 18px; }
+            .project-title { font-size: 0.8rem; line-height: 0.65rem; }
+            .project-desc { font-size: 0.7rem; }
+            .project-display > [class*="slide-container-"]:first-child {
+                border-top-left-radius: 20px;
+                border-top-right-radius: 20px;
+            }
+            .project-display > [class*="slide-container-"]:last-child {
+                border-bottom-left-radius: 20px;
+                border-bottom-right-radius: 20px;
+            }
+
+            .slide-container-1 {
+                aspect-ratio: 9 / 4;
+            }
+
+            .slide-container-1 .front-img,
+            .slide-container-1 .front-vid {
+                height: 100%;
+                object-fit: cover;
+                object-position: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="portfolio-preloader"></div>
+    <header>
+        <div class="header-container">
+            <div class="logo-group">
+                <a href="#" class="logo-link" aria-label="Back to top">
+                    <img class="logo-img" src="UI/Logo.svg" alt="Logo">
+                </a>
+                <div class="logo-name-part">
+                    <img class="logo-text-part" src="UI/Name.svg" alt="Name" width="312" height="51">
+                </div>
+            </div>
+            <nav class="nav-icons">
+                <a href="https://www.linkedin.com/in/gaborlakatos" target="_blank" rel="noopener" aria-label="LinkedIn">
+                    <img src="UI/LinkedIn.svg" alt="LinkedIn">
+                </a>
+                <a href="UI/CV.pdf" target="_blank" download aria-label="Download CV">
+                    <img src="UI/CV.svg" alt="CV">
+                </a>
+                <a href="mailto:gaborlakatos89@gmail.com" aria-label="Contact Email">
+                    <img src="UI/Contact.svg" alt="Contact">
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <section id="hero">
+        <canvas id="hero-canvas"></canvas>
+        <div id="logo-3d-wrapper"></div>
+        <button id="scroll-btn">
+            explore work ↓
+        </button>
+    </section>
+
+    <main>
+        <div class="gallery-container" id="gallery-container">
+            <section class="project-section">
+                <div class="project-meta meta-visible">
+                    <div class="sticky-meta">
+                        <h2 class="project-title" style="opacity: 1; clip-path: inset(0 0 0 0);">Album Art</h2>
+                        <p class="project-desc" style="opacity: 1; clip-path: inset(0 0 0 0);">Visual depictions created using noise generators, node-controlled distortions, and random values.</p>
+                    </div>
+                </div>
+                <div class="project-content-column">
+                    <div class="project-display">
+                        <div class="slide-container-2">
+                            <img class="front-img" src="Projects/Album Art 1.webp" alt="Album Art 1">
+                        </div>
+                        <div class="slide-container-2">
+                            <img class="front-img" src="Projects/Album Art 2.webp" alt="Album Art 2">
+                        </div>
+                        <div class="slide-container-2">
+                            <img class="front-img" src="Projects/Album Art 3.webp" alt="Album Art 3">
+                        </div>
+                        <div class="slide-container-1">
+                            <img class="front-img" src="Projects/Album Art 4.webp" alt="Album Art 4">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="project-section">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Logos</h2>
+                        <p class="project-desc">A mix of client work and personal design experiments.</p>
+                    </div>
+                </div>
+                <div class="project-content-column">
+                    <div class="project-display">
+                        <div class="slide-container-1">
+                            <img class="front-img" src="Projects/Logo 1.webp" alt="Logo 1">
+                        </div>
+                        <div class="slide-container-1">
+                            <img class="front-img" src="Projects/Logo 2.webp" alt="Logo 2">
+                        </div>
+                        <div class="slide-container-1">
+                            <img class="front-img" src="Projects/Logo 3.webp" alt="Logo 3">
+                        </div>
+                        <div class="slide-container-1">
+                            <img class="front-img" src="Projects/Logo 4.webp" alt="Logo 4">
+                        </div>
+                        <div class="slide-container-1">
+                            <img class="front-img" src="Projects/Logo 5.webp" alt="Logo 5">
+                        </div>
+                        <div class="slide-container-1">
+                            <video class="front-vid" width="100%" loop muted playsinline>
+                                <source src="Projects/Oblique Audio 1.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="slide-container-2">
+                            <video class="front-vid" width="100%" loop muted playsinline>
+                                <source src="Projects/Oblique Audio 2.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="slide-container-1">
+                            <video class="front-vid" width="100%" loop muted playsinline>
+                                <source src="Projects/Oblique Audio 3.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="project-section">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Icon Sets</h2>
+                        <p class="project-desc">Collections created for Arts University Bournemouth's Interreg archive (1), a side-project quiz game (2), and National Air Traffic Services' training packages (3-4).</p>
+                    </div>
+                </div>
+                <div class="project-content-column">
+                    <div class="project-display">
+                        <div class="slide-container-2">
+                            <img class="front-img" src="Projects/Icon Sets 1.webp" alt="Icon Set 1-2">
+                        </div>
+                        <div class="slide-container-3">
+                            <img class="front-img" src="Projects/Icon Sets 2.webp" alt="Icon Set 3-4">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="project-section project-section-hidden">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Flow</h2>
+                        <p class="project-desc">A modular VST plugin concept combining dynamic processing with a customisable signal flow.</p>
+                    </div>
+                </div>
+                <div class="project-content-column">
+                    <div class="project-display">
+                        <div class="slide-container-2 has-parallax">
+                            <video class="parallax-vid-bg" width="100%" loop muted playsinline>
+                                <source src="Projects/Flow 1 Background.mp4" type="video/mp4">
+                            </video>
+                            <video class="front-vid" width="100%" loop muted playsinline>
+                                <source src="Projects/Flow 1.mov" type='video/mp4; codecs="hvc1"'>
+                                <source src="Projects/Flow 1.webm" type="video/webm">
+                            </video>
+                        </div>
+                        <div class="slide-container-3 has-parallax">
+                            <div class="parallax-bg" style="background-image: url('Projects/Flow 2 Background.webp');"></div>
+                            <img class="front-img" src="Projects/Flow 2.webp" alt="Flow 3">
+                        </div>
+                        <div class="slide-container-1">
+                            <img class="front-img" src="Projects/Flow 3.webp" alt="Flow 2">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="project-section project-section-hidden">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Vectora</h2>
+                        <p class="project-desc">A software synth featuring a raw, geometric shape that evolves as you tweak the parameters.</p>
+                    </div>
+                </div>
+                <div class="project-content-column">
+                    <div class="project-display">
+                        <div class="slide-container-2 has-parallax">
+                            <video class="parallax-vid-bg" width="100%" loop muted playsinline>
+                                <source src="Projects/Vectora Background.mp4" type="video/mp4">
+                            </video>
+                            <video class="front-vid" width="100%" loop muted playsinline>
+                                <source src="Projects/Vectora Interface.mov" type='video/mp4; codecs="hvc1"'>
+                                <source src="Projects/Vectora Interface.webm" type="video/webm">
+                            </video>
+                        </div>
+                        <div class="slide-container-1">
+                            <video class="front-vid" width="100%" loop muted playsinline>
+                                <source src="Projects/Vectora Macro.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="slide-container-1">
+                            <img class="front-img" src="Projects/Vectora Detail.webp" alt="Vectora Detail">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="project-section project-section-hidden">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Polyshade</h2>
+                        <p class="project-desc">A vibrant polyphonic synth inspired by '80s tactile hardware and modern UX sensibilities.</p>
+                    </div>
+                </div>
+                <div class="project-content-column">
+                    <div class="project-display">
+                        <div class="slide-container-2 has-parallax">
+                            <video class="parallax-vid-bg" width="100%" loop muted playsinline>
+                                <source src="Projects/Polyshade Background.mp4" type="video/mp4">
+                            </video>
+                            <video class="front-vid" width="100%" loop muted playsinline>
+                                <source src="Projects/Polyshade Interface.mov" type='video/mp4; codecs="hvc1"'>
+                                <source src="Projects/Polyshade Interface.webm" type="video/webm">
+                            </video>
+                        </div>
+                        <div class="slide-container-1">
+                            <video class="front-vid" width="100%" loop muted playsinline>
+                                <source src="Projects/Polyshade Details.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="project-section project-section-hidden">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Chess Set</h2>
+                        <p class="project-desc">Clean geometry meeting the roughness of concrete.</p>
+                    </div>
+                </div>
+                <div class="project-content-column">
+                    <div class="project-display">
+                        <div class="slide-container-2">
+                            <img class="front-img" src="Projects/Chess 1.webp" alt="Chess 1">
+                        </div>
+                        <div class="slide-container-1">
+                            <img class="front-img" src="Projects/Chess 2.webp" alt="Chess 2">
+                        </div>
+                        <div class="slide-container-2">
+                            <img class="front-img" src="Projects/Chess 3.webp" alt="Chess 3">
+                        </div>
+                        <div class="slide-container-2">
+                            <img class="front-img" src="Projects/Chess 4.webp" alt="Chess 4">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="project-section project-section-hidden">
+                <div class="project-meta">
+                    <div class="sticky-meta">
+                        <h2 class="project-title">Woven Notes</h2>
+                        <p class="project-desc">A MIDI visualiser programmed in Processing. The 88 keys of a piano radiate in 360 degrees from the centre when pressed. Colours represent note velocity, while connecting lines illustrate the intervals played while the sustain pedal is held.</p>
+                    </div>
+                </div>
+                <div class="project-content-column">
+                    <div class="project-display">
+                        <div class="slide-container-2 has-parallax">
+                            <div class="parallax-bg" style="background-image: url('Projects/Woven Notes 1 Background.webp');"></div>
+                            <video class="front-vid" width="100%" loop muted playsinline>
+                                <source src="Projects/Woven Notes 1.mov" type='video/mp4; codecs="hvc1"'>
+                                <source src="Projects/Woven Notes 1.webm" type="video/webm">
+                            </video>
+                        </div>
+                        <div class="slide-container-2">
+                            <img class="front-img" src="Projects/Woven Notes 2.webp" alt="Woven Notes 2">
+                        </div>
+                        <div class="slide-container-2">
+                            <img class="front-img" src="Projects/Woven Notes 3.webp" alt="Woven Notes 3">
+                        </div>
+                        <div class="slide-container-2">
+                            <img class="front-img" src="Projects/Woven Notes 4.webp" alt="Woven Notes 4">
+                        </div>
+                    </div>
+                    <div class="back-to-top-wrapper">
+                        <button id="back-to-top" class="back-to-top-btn" aria-label="Back to top">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 4l-8 8h5v8h6v-8h5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // --- WebGL Animated Glass & Morphing Blobs Shader ---
+        function initHeroCanvas() {
+            const canvas = document.getElementById('hero-canvas');
+            const gl = canvas.getContext('webgl');
+            if (!gl) return;
+
+            const vsSource = `
+                attribute vec2 a_position;
+                void main() {
+                    gl_Position = vec4(a_position, 0.0, 1.0);
+                }
+            `;
+
+            const fsSource = `
+                precision mediump float;
+                uniform vec2 u_resolution;
+                uniform float u_time;
+
+                // 2D Simplex Noise primitives
+                vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+                float snoise(vec2 v){
+                    const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+                                     -0.577350269189626, 0.024390243902439);
+                    vec2 i  = floor(v + dot(v, C.yy) );
+                    vec2 x0 = v -   i + dot(i, C.xx);
+                    vec2 i1;
+                    i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+                    vec4 x12 = x0.xyxy + C.xxzz;
+                    x12.xy -= i1;
+                    i = mod(i, 289.0);
+                    vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+                    + i.x + vec3(0.0, i1.x, 1.0 ));
+                    vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+                    m = m*m ;
+                    m = m*m ;
+                    vec3 x = 2.0 * fract(p * C.www) - 1.0;
+                    vec3 h = abs(x) - 0.5;
+                    vec3 ox = floor(x + 0.5);
+                    vec3 a0 = x - ox;
+                    m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+                    vec3 g;
+                    g.x  = a0.x  * x0.x  + h.x  * x0.y;
+                    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+                    return 130.0 * dot(m, g);
+                }
+
+                // Generates the underlying morphing organic color background with ultra-soft blob edges
+                vec3 sampleBackground(vec2 uv, float time) {
+                    vec2 st = uv * 0.85;
+                    
+                    // Increased speed factors to keep fluid motion fluid and dynamic
+                    float n1 = snoise(st + vec2(time * 0.18, time * 0.12));
+                    float n2 = snoise(st * 0.8 - vec2(time * 0.14, -time * 0.16));
+                    float n3 = snoise(st * 0.5 + vec2(-time * 0.10, time * 0.20));
+
+                    // Scrolled header color palette match
+                    vec3 colorBase = vec3(0.56, 0.55, 0.54);    
+                    vec3 colorWarm = vec3(0.65, 0.63, 0.61);    
+                    vec3 colorCharcoal = vec3(0.44, 0.42, 0.41); 
+
+                    // Ultra-broad smoothstep boundaries for seamless blob blending
+                    float mix1 = smoothstep(-0.8, 1.0, n1 + n2 * 0.35);
+                    float mix2 = smoothstep(-0.9, 1.1, n2 + n3 * 0.35);
+
+                    vec3 finalCol = mix(colorBase, colorWarm, mix1);
+                    finalCol = mix(finalCol, colorCharcoal, mix2 * 0.5);
+
+                    return finalCol;
+                }
+
+                void main() {
+                    vec2 st = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / u_resolution.y;
+                    float time = u_time * 0.65; // Sped up global evolution speed
+
+                    // 1. Vertical glass tile geometry grid
+                    float tileDensity = 16.0; 
+                    float tileX = fract(st.x * tileDensity);
+                    
+                    // Curved cylindrical lens profile across individual tile widths
+                    float lensFactor = sin(tileX * 3.14159265);
+
+                    // 2. Dynamic noise mask driven by faster morphing speed
+                    float morphMask = snoise(st * vec2(1.1, 1.1) + vec2(time * 0.35, time * 0.22));
+                    
+                    // Smooth, blurred falloff across dynamic glass regions
+                    float distortionIntensity = smoothstep(-0.4, 0.7, morphMask);
+                    distortionIntensity = sin(distortionIntensity * 1.5708);
+
+                    // 3. Amplified refractive displacement
+                    float displaceX = (tileX - 0.6) * 0.18 * (1.0 - lensFactor) * distortionIntensity;
+                    float displaceY = (lensFactor - 0.6) * 0.2 * distortionIntensity;
+
+                    vec2 distortedUV = st + vec2(displaceX, displaceY);
+
+                    // Sample soft morphing background at heavily refracted coords
+                    vec3 color = sampleBackground(distortedUV, time);
+
+                    // 4. Detailed refraction highlights:
+                    // Edge highlights
+                    float edgeHighlight = pow(1.0 - lensFactor, 2.5) * 0.045 * distortionIntensity;
+                    
+                    // Secondary inner-accent highlights (closer to the tile centre, but still offset from edges)
+                    float innerAccentProfile = pow(sin(tileX * 3.14159265), 2.0);
+                    float detailNoise = snoise(st * 4.0 + vec2(-time * 0.5, time * 0.3));
+                    float accentHighlight = innerAccentProfile * (detailNoise * 0.5 + 0.5) * 0.035 * distortionIntensity;
+
+                    color += vec3(edgeHighlight + accentHighlight);
+
+                    gl_FragColor = vec4(color, 1.0);
+                }
+            `;
+
+            function createShader(gl, type, source) {
+                const shader = gl.createShader(type);
+                gl.shaderSource(shader, source);
+                gl.compileShader(shader);
+                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                    gl.deleteShader(shader);
+                    return null;
+                }
+                return shader;
+            }
+
+            const vertexShader = createShader(gl, gl.VERTEX_SHADER, vsSource);
+            const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
+            const program = gl.createProgram();
+            gl.attachShader(program, vertexShader);
+            gl.attachShader(program, fragmentShader);
+            gl.linkProgram(program);
+
+            const positionBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+                -1, -1,  1, -1, -1,  1,
+                -1,  1,  1, -1,  1,  1,
+            ]), gl.STATIC_DRAW);
+
+            const positionLocation = gl.getAttribLocation(program, "a_position");
+            const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
+            const timeLocation = gl.getUniformLocation(program, "u_time");
+
+            function resize() {
+                const dpr = Math.min(window.devicePixelRatio || 1, 2);
+                canvas.width = canvas.clientWidth * dpr;
+                canvas.height = canvas.clientHeight * dpr;
+                gl.viewport(0, 0, canvas.width, canvas.height);
+            }
+
+            window.addEventListener('resize', resize);
+            resize();
+
+            let startTime = performance.now();
+            function render() {
+                if (document.getElementById('hero').classList.contains('collapsed')) {
+                    requestAnimationFrame(render);
+                    return;
+                }
+
+                const elapsed = (performance.now() - startTime) * 0.001;
+
+                gl.useProgram(program);
+                gl.enableVertexAttribArray(positionLocation);
+                gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+                gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+                gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+                gl.uniform1f(timeLocation, elapsed);
+
+                gl.drawArrays(gl.TRIANGLES, 0, 6);
+                requestAnimationFrame(render);
+            }
+
+            requestAnimationFrame(render);
+        }
+
+        // --- 3D Wireframe Logo Implementation ---
+        function init3DLogo() {
+            const container = document.getElementById('logo-3d-wrapper');
+            if (!container || !THREE || !THREE.SVGLoader) return;
+
+            const scene = new THREE.Scene();
+            
+            const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+            camera.position.z = 250;
+            
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+            
+            const pivot = new THREE.Group();
+            scene.add(pivot);
+            
+            const logoGroup = new THREE.Group();
+            
+            // The exact SVG path provided in the prompt wrapped in a standard viewBox
+            const svgMarkup = `
+            <svg viewBox="0 0 52 90" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0,36.346920534687l-0,-14.632658035995c0,-13.459973030581 8.129252311695,-24.38776367658 24.387761183927,-21.136061607548l4.064629406211,0.812925623479l23.05204107484,4.610408181503c0.303984271232,0.06079745526 0.522796937887,0.3277065442 0.522796907449,0.637711008237l-0.000000000001,0.612124593671c-0.000030509949,0.289376632529 -0.153888579126,0.556921501199 -0.403984751557,0.7024918997c-0.879776027464,0.56403960593 -2.84771821006,2.558707931058 -2.847717848208,8.882847622294l-0.000003604806,19.51021071466c0,10.188993398987 -6.261903372227,19.555688399339 -15.143936432794,23.200892241516c-0.249836341167,0.100127841854 -0.533074896915,0.020753065328 -0.756002613425,-0.130068071431c-0.22292771651,-0.15082113676 -0.356486259764,-0.381186531097 -0.356486098719,-0.650340357155c-0.001322220437,-4.566021014796 -0.002079365151,-47.7676587652 -0.002079365151,-47.7676587652c-0.000000057045,-0.387505622012 -0.273516030115,-0.721141939941 -0.653496439392,-0.79713862182l-16.841923958989,-3.368384791798c-0.095526623756,-0.019104740899 -0.194586456714,0.005626293548 -0.269924020271,0.067388567537c-0.075337563558,0.061762273988 -0.119015210108,0.154048447179 -0.119015403124,0.251466756398l0.000000000005,0.71732033279c0.000069765835,0.303706512646 0.169427579261,0.582046856542 0.43912184226,0.721698763784c1.468752300954,0.77623966289 2.812579943516,2.657270072251 2.812579943516,8.569783409298l0,41.605524349011c0.000012222325,0.259259120816 -0.123637901017,0.497238194988 -0.3328627079,0.650340357155c-0.209224806883,0.153102162167 -0.478928501764,0.208513789775 -0.726034877944,0.130068071431c-9.762654155841,-3.187412537723 -16.825462235927,-12.379909239996 -16.825462235927,-23.200892241516Zm43.48684196592,42.272123215095c0.304354086018,-0.000022824025 0.583226389422,0.169965665117 0.722659385625,0.440501891465c0.139432996203,0.270536226348 0.11606718958,0.596296701433 -0.06054928816,0.844163661691c-4.434961729812,6.114985691521 -11.636804306733,10.096290697062 -19.761193088856,10.096290697062c-13.063289458018,0 -23.741450144287,-10.293170211174 -24.359499883712,-23.204528458429c-0.012282073333,-0.30845780941 0.101670462037,-0.608600257891 0.315569288702,-0.831185885151c0.213898826665,-0.222585627259 0.509269696937,-0.348389914518 0.817971931316,-0.348390400591c3.018900678487,-0.003654798482 12.657116079558,-0.003655893866 15.588885011222,-0.003656292269c0.589869410223,0.000020401884 1.081962956929,0.450724871007 1.133674499714,1.038323235433c0.592712752481,6.694097447762 6.930069250264,11.968481550789 16.210163393144,11.968481550789l9.392318751005,0Z"/>
+            </svg>`;
+            
+            const loader = new THREE.SVGLoader();
+            const svgData = loader.parse(svgMarkup);
+            
+            const material = new THREE.LineBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.9,
+                linewidth: 1
+            });
+            
+            svgData.paths.forEach((path) => {
+                const shapes = path.toShapes(true);
+                shapes.forEach((shape) => {
+                    const extrudeSettings = {
+                        depth: 14,
+                        bevelEnabled: false,
+                        curveSegments: 24
+                    };
+                    const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+                    
+                    // 1. EdgesGeometry gives us the sharp 2D front and back perimeters
+                    const edgesGeometry = new THREE.EdgesGeometry(geometry, 20); 
+                    const line = new THREE.LineSegments(edgesGeometry, material);
+                    logoGroup.add(line);
+
+                    // 2. Silhouette Shader adds perfectly tracked depth-connecting lines to the 3D curves
+                    const silhouetteMaterial = new THREE.ShaderMaterial({
+                        uniforms: {
+                            color: { value: new THREE.Color(0xffffff) },
+                            opacity: { value: 0.9 }
+                        },
+                        vertexShader: `
+                            varying vec3 vNormal;
+                            varying vec3 vViewPosition;
+                            void main() {
+                                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                                vNormal = normalize(normalMatrix * normal);
+                                vViewPosition = -mvPosition.xyz;
+                                gl_Position = projectionMatrix * mvPosition;
+                            }
+                        `,
+                        fragmentShader: `
+                            uniform vec3 color;
+                            uniform float opacity;
+                            varying vec3 vNormal;
+                            varying vec3 vViewPosition;
+                            void main() {
+                                vec3 normal = normalize(vNormal);
+                                vec3 viewDir = normalize(vViewPosition);
+                                float fresnel = abs(dot(normal, viewDir));
+                                
+                                // Sharp falloff creating a line specifically where faces turn away from camera (silhouette)
+                                float edge = smoothstep(0.15, 0.0, fresnel);
+                                
+                                // Prevent front/back flat caps from coloring at all to prevent depth occlusion
+                                if (edge < 0.01) discard; 
+                                
+                                gl_FragColor = vec4(color, edge * opacity);
+                            }
+                        `,
+                        transparent: true,
+                        depthWrite: false, // Ensures we can see back silhouettes just like a wireframe
+                        side: THREE.DoubleSide
+                    });
+                    
+                    const silhouetteMesh = new THREE.Mesh(geometry, silhouetteMaterial);
+                    logoGroup.add(silhouetteMesh);
+                });
+            });
+            
+            // Align and center the two shapes properly
+            const box = new THREE.Box3().setFromObject(logoGroup);
+            const center = box.getCenter(new THREE.Vector3());
+            logoGroup.position.sub(center);
+            
+            pivot.add(logoGroup);
+            
+            let targetScale = 1;
+            function resize() {
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                renderer.setSize(width, height);
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+                
+                // Make the geometry fill roughly 2/3 of the view's height
+                const fov = camera.fov * (Math.PI / 180);
+                const viewHeight = 2 * Math.tan(fov / 2) * camera.position.z;
+                const targetHeight = viewHeight * (2 / 3);
+                
+                const size = box.getSize(new THREE.Vector3());
+                targetScale = targetHeight / size.y;
+                
+                // SVG coordinates plot Y downwards, flip to match Three.js Y-up
+                pivot.scale.set(targetScale, -targetScale, targetScale);
+            }
+            
+            window.addEventListener('resize', resize);
+            resize(); 
+            
+            let targetRotationX = 0;
+            let targetRotationY = 0;
+            
+            const isMobile = () => window.innerWidth <= 768 || ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+            
+            window.addEventListener('mousemove', (e) => {
+                if (isMobile()) return;
+                // Soft constraints: +/- 0.35 radians max rotation (doesn't turn too far away from centre)
+                const x = (e.clientX / window.innerWidth) * 2 - 1;
+                const y = -(e.clientY / window.innerHeight) * 2 + 1;
+                
+                targetRotationY = x * 0.35;
+                targetRotationX = -y * 0.35; 
+            });
+            
+            const clock = new THREE.Clock();
+            
+            function animate() {
+                // Pause rendering if user scrolled away
+                if (document.getElementById('hero').classList.contains('collapsed')) {
+                    requestAnimationFrame(animate);
+                    return;
+                }
+                
+                // Clamp dt to a max of 0.1s to prevent extreme rotations when returning to tab
+                const dt = Math.min(clock.getDelta(), 0.1);
+                const time = clock.getElapsedTime();
+                
+                if (isMobile()) {
+                    // Wander slowly mimicking cursor movement within the centre area
+                    targetRotationY = Math.sin(time * 0.6) * 0.25 + Math.cos(time * 0.4) * 0.15;
+                    targetRotationX = Math.cos(time * 0.5) * 0.25 + Math.sin(time * 0.7) * 0.15;
+                }
+                
+                // Smooth interpolation (Lerp) towards the target
+                pivot.rotation.x += (targetRotationX - pivot.rotation.x) * 4.0 * dt;
+                pivot.rotation.y += (targetRotationY - pivot.rotation.y) * 4.0 * dt;
+                
+                renderer.render(scene, camera);
+                requestAnimationFrame(animate);
+            }
+            
+            requestAnimationFrame(animate);
+        }
+
+        // --- Core Site Logic & Lifecycle ---
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0, 0);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initHeroCanvas();
+            init3DLogo(); // Initialize the 3D Wireframe Logo
+
+            const body = document.body;
+            const logoLink = document.querySelector('.logo-link');
+            const navIcons = document.querySelector('.nav-icons');
+            const hero = document.getElementById('hero');
+            const scrollBtn = document.getElementById('scroll-btn');
+            const backToTopBtn = document.getElementById('back-to-top');
+
+            let parallaxData = [];
+            
+            const refreshParallaxElements = () => {
+                const parallaxBgs = document.querySelectorAll('.parallax-bg, .parallax-vid-bg');
+                parallaxData = Array.from(parallaxBgs).map(bg => ({
+                    element: bg,
+                    parent: bg.parentElement,
+                    currentY: 0,
+                    targetY: 0
+                }));
+            };
+
+            refreshParallaxElements();
+
+            const projectVideoReadyPromises = new WeakMap();
+
+            const videoPreloadObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) return;
+                    videoPreloadObserver.unobserve(entry.target);
+                    prepareProjectVideos(entry.target);
+                });
+            }, {
+                root: null,
+                rootMargin: '2000px 0px 2000px 0px',
+                threshold: 0
+            });
+
+            const videoStartObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) return;
+                    videoStartObserver.unobserve(entry.target);
+                    startProjectVideos(entry.target);
+                });
+            }, {
+                root: null,
+                rootMargin: '600px 0px 600px 0px',
+                threshold: 0
+            });
+
+            const waitForVideoFrame = (video) => new Promise(resolve => {
+                if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA || video.error) {
+                    resolve();
+                    return;
+                }
+
+                const settle = () => {
+                    video.removeEventListener('loadeddata', settle);
+                    video.removeEventListener('error', settle);
+                    resolve();
+                };
+
+                video.addEventListener('loadeddata', settle, { once: true });
+                video.addEventListener('error', settle, { once: true });
+            });
+
+            const prepareProjectVideos = (section) => {
+                const existingPromise = projectVideoReadyPromises.get(section);
+                if (existingPromise) return existingPromise;
+
+                const videos = Array.from(section.querySelectorAll('video'));
+                if (!videos.length) return Promise.resolve([]);
+
+                videos.forEach(video => {
+                    video.pause();
+                    video.preload = 'auto';
+                });
+
+                const readyVideos = Promise.all(videos.map(waitForVideoFrame));
+                videos.forEach(video => {
+                    if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA && !video.error) {
+                        video.load();
+                    }
+                });
+
+                const readyPromise = readyVideos.then(() => videos);
+                projectVideoReadyPromises.set(section, readyPromise);
+                return readyPromise;
+            };
+
+            const startProjectVideos = async (section) => {
+                const videos = await prepareProjectVideos(section);
+
+                const playableVideos = videos.filter(video => !video.error);
+                playableVideos.forEach(video => {
+                    try {
+                        video.currentTime = 0;
+                    } catch (_) {}
+                });
+
+                requestAnimationFrame(() => {
+                    playableVideos.forEach(video => {
+                        video.play().catch(() => {});
+                    });
+                });
+            };
+
+            const observeProjectVideos = () => {
+                if (!body.classList.contains('unlocked')) return;
+
+                const sections = document.querySelectorAll('.project-section:not(.project-section-hidden)');
+                sections.forEach(section => {
+                    if (!section.querySelector('video') || section.dataset.videosSyncObserved) return;
+                    section.dataset.videosSyncObserved = 'true';
+                    videoPreloadObserver.observe(section);
+                    videoStartObserver.observe(section);
+                });
+            };
+
+            const bindMediaLoadingGates = () => {
+                const mediaElements = document.querySelectorAll('[class*="slide-container-"] > *');
+
+                mediaElements.forEach(el => {
+                    if (el.tagName === 'IMG') {
+                        el.loading = 'eager';
+                    }
+
+                    if (el.classList.contains('is-loaded')) return;
+
+                    if (el.tagName === 'IMG') {
+                        if (el.complete && el.naturalWidth !== 0) {
+                            el.classList.add('is-loaded');
+                        } else {
+                            el.addEventListener('load', () => el.classList.add('is-loaded'), { once: true });
+                            el.addEventListener('error', () => el.classList.add('is-loaded'), { once: true });
+                        }
+                    }
+                    else if (el.tagName === 'VIDEO') {
+                        if (el.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+                            el.classList.add('is-loaded');
+                        } else {
+                            el.addEventListener('loadeddata', () => el.classList.add('is-loaded'), { once: true });
+                            el.addEventListener('error', () => el.classList.add('is-loaded'), { once: true });
+                        }
+                    } 
+                    else {
+                        const bgStyle = window.getComputedStyle(el).backgroundImage;
+                        if (bgStyle && bgStyle !== 'none') {
+                            const match = bgStyle.match(/^url\((['"]?)(.*?)\1\)$/);
+                            if (match) {
+                                const img = new Image();
+                                img.onload = () => el.classList.add('is-loaded');
+                                img.onerror = () => el.classList.add('is-loaded');
+                                img.src = match[2];
+                            } else {
+                                el.classList.add('is-loaded');
+                            }
+                        } else {
+                            el.classList.add('is-loaded');
+                        }
+                    }
+                });
+            };
+
+            bindMediaLoadingGates();
+
+            const metaObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const section = entry.target.closest('.project-section');
+                    if (!section) return;
+                    if (section === document.querySelector('.project-section:first-child')) return;
+
+                    const meta = section.querySelector('.project-meta');
+                    if (!meta) return;
+
+                    if (entry.isIntersecting) {
+                        meta.classList.add('meta-visible');
+                    }
+                });
+            }, {
+                root: null,
+                rootMargin: '0px 0px -5% 0px',
+                threshold: 0
+            });
+
+            const observeMetaElements = () => {
+                const columns = document.querySelectorAll('.project-section:not(:first-child):not(.project-section-hidden) .project-content-column');
+                columns.forEach(col => metaObserver.observe(col));
+                observeProjectVideos();
+            };
+
+            observeMetaElements();
+
+            const checkMetasOffscreenBottom = () => {
+                const sections = document.querySelectorAll('.project-section:not(:first-child)');
+                const windowHeight = window.innerHeight;
+
+                sections.forEach(section => {
+                    const rect = section.getBoundingClientRect();
+                    const meta = section.querySelector('.project-meta');
+                    if (!meta) return;
+
+                    if (rect.top >= windowHeight) {
+                        meta.classList.remove('meta-visible');
+                    }
+                });
+            };
+
+            const updateHeaderUI = (scrollTop = window.scrollY) => {
+                const isScrolled = scrollTop > 10;
+                body.classList.toggle('scrolled', isScrolled);
+                if (logoLink) {
+                    if (isScrolled) {
+                        logoLink.removeAttribute('aria-disabled');
+                        logoLink.removeAttribute('tabindex');
+                        logoLink.style.pointerEvents = '';
+                    } else {
+                        logoLink.setAttribute('aria-disabled', 'true');
+                        logoLink.setAttribute('tabindex', '-1');
+                        logoLink.style.pointerEvents = 'none';
+                    }
+                }
+                if (navIcons) {
+                    navIcons.style.display = isScrolled ? 'none' : 'flex';
+                }
+            };
+
+            if (logoLink) {
+                logoLink.addEventListener('click', event => {
+                    if (!body.classList.contains('scrolled') || window.scrollY <= 10) {
+                        event.preventDefault();
+                    }
+                });
+            }
+
+            const checkInfiniteScroll = () => {
+                const preloadDistance = Math.max(window.innerHeight * 2, 1600);
+                const isNearBottom = window.innerHeight + window.scrollY >= body.offsetHeight - preloadDistance;
+                if (isNearBottom) {
+                    const hiddenSections = document.querySelectorAll('.project-section-hidden');
+                    if (hiddenSections.length > 0) {
+                        Array.from(hiddenSections).slice(0, 2).forEach(section => {
+                            section.classList.remove('project-section-hidden');
+                        });
+                        prepareDescriptionLines();
+                        
+                        refreshParallaxElements();
+                        bindMediaLoadingGates();
+                        observeMetaElements();
+                    }
+                }
+            };
+
+            const checkBackToTopVisibility = () => {
+                if (!backToTopBtn) return;
+                const isAtBottom = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 40);
+                backToTopBtn.classList.toggle('is-visible', isAtBottom);
+            };
+
+            const calculateParallaxTargets = () => {
+                const viewHeight = window.innerHeight;
+                const viewCenter = viewHeight / 2;
+
+                parallaxData.forEach(item => {
+                    const rect = item.parent.getBoundingClientRect();
+                    if (rect.top < viewHeight && rect.bottom > 0) {
+                        const parentCenter = rect.top + rect.height / 2;
+                        item.targetY = -(parentCenter - viewCenter) * 0.1;
+                    }
+                });
+            };
+
+            const LERP_FACTOR = 0.08;
+
+            // Split descriptions into visual lines so each line can follow the
+            // scroll with a small spring-like delay. Rebuild after layout changes.
+            const descriptionLines = [];
+            const prepareDescriptionLines = () => {
+                descriptionLines.length = 0;
+                document.querySelectorAll('.project-desc').forEach(desc => {
+                    if (!desc.getClientRects().length) return;
+                    let wordSpans = Array.from(desc.querySelectorAll('.project-desc-word'));
+                    if (!wordSpans.length) {
+                        const words = desc.textContent.trim().split(/\s+/);
+                        desc.textContent = '';
+                        wordSpans = words.map((word, index) => {
+                            const span = document.createElement('span');
+                            span.className = 'project-desc-word';
+                            span.textContent = word;
+                            desc.appendChild(span);
+                            if (index < words.length - 1) desc.appendChild(document.createTextNode(' '));
+                            return span;
+                        });
+                    }
+                    let lineTop = null;
+                    let lineIndex = -1;
+                    wordSpans.forEach(span => {
+                        const top = Math.round(span.getBoundingClientRect().top);
+                        if (top !== lineTop) { lineTop = top; lineIndex += 1; }
+                        descriptionLines.push({
+                            element: span,
+                            lineIndex,
+                            currentY: Number(span.dataset.motionY || 0),
+                            velocityY: Number(span.dataset.motionVelocity || 0),
+                            lastSampleTime: Number(span.dataset.motionSampleTime || 0)
+                        });
+                    });
+                    desc.dataset.motionPrepared = 'true';
+                });
+            };
+            prepareDescriptionLines();
+
+            let metaScrollSamples = [];
+            let previousMetaScroll = window.scrollY;
+            const metaTitles = Array.from(document.querySelectorAll('.project-title'));
+            const header = document.querySelector('header');
+            let headerOffsetY = 0;
+            let headerVelocityY = 0;
+            let headerLastSampleTime = 0;
+            let headerWasCollapsed = false;
+            let headerDynamicReady = false;
+            if (header) {
+                header.addEventListener('transitionend', event => {
+                    if (event.propertyName !== 'height' || !body.classList.contains('scrolled')) return;
+                    headerDynamicReady = true;
+                    header.classList.add('scrolling-header-dynamic');
+                });
+            }
+            const delayedScrollSample = (now, delay, afterTime) => {
+                for (let i = metaScrollSamples.length - 1; i >= 0; i--) {
+                    const sample = metaScrollSamples[i];
+                    if (sample.time <= now - delay && sample.time > afterTime) return sample;
+                }
+                return null;
+            };
+            const updateMetaMotion = (now) => {
+                const isHeaderCollapsed = body.classList.contains('scrolled');
+                if (!isHeaderCollapsed) {
+                    headerWasCollapsed = false;
+                    headerDynamicReady = false;
+                    headerOffsetY = 0;
+                    headerVelocityY = 0;
+                    if (header) {
+                        header.classList.remove('scrolling-header-dynamic');
+                        header.style.height = '';
+                    }
+                } else if (header) {
+                    if (!headerWasCollapsed) {
+                        headerWasCollapsed = true;
+                        headerDynamicReady = false;
+                        header.classList.remove('scrolling-header-dynamic');
+                        header.style.height = '';
+                        headerLastSampleTime = metaScrollSamples.length
+                            ? metaScrollSamples[metaScrollSamples.length - 1].time
+                            : now;
+                    }
+                    if (headerDynamicReady) {
+                        const sample = delayedScrollSample(now, 0, headerLastSampleTime);
+                        if (sample) {
+                            headerVelocityY = Math.max(-1.2, Math.min(1.2, headerVelocityY - sample.delta * 0.09));
+                            headerLastSampleTime = sample.time;
+                        }
+                        headerVelocityY -= headerOffsetY * 0.055;
+                        headerVelocityY *= 0.40;
+                        headerOffsetY = Math.max(-4, Math.min(9, headerOffsetY + headerVelocityY));
+
+                        const width = window.innerWidth;
+                        const baseHeight = width <= 576 ? 40 : width <= 768 ? 45 : 50;
+                        header.style.height = `${baseHeight + headerOffsetY}px`;
+                    }
+                }
+
+                metaTitles.forEach(title => {
+                    const currentY = Number(title.dataset.motionY || 0);
+                    let velocityY = Number(title.dataset.motionVelocity || 0);
+                    const sample = delayedScrollSample(now, 0, Number(title.dataset.motionSampleTime || 0));
+                    if (sample) {
+                        velocityY = Math.max(-2.8, Math.min(2.8, velocityY - sample.delta * 0.22));
+                        title.dataset.motionSampleTime = sample.time;
+                    }
+                    // Keep pulling toward rest during active scrolling; each new
+                    // scroll impulse still adds motion on top of this return.
+                    velocityY -= currentY * 0.070;
+                    velocityY *= 0.38;
+                    const nextY = Math.max(-10, Math.min(10, currentY + velocityY));
+                    title.dataset.motionY = nextY;
+                    title.dataset.motionVelocity = velocityY;
+                    title.style.transform = `translate3d(0, ${nextY.toFixed(2)}px, 0)`;
+                });
+                descriptionLines.forEach(line => {
+                    const sample = delayedScrollSample(now, 28 + line.lineIndex * 24, line.lastSampleTime);
+                    if (sample) {
+                        line.velocityY = Math.max(-2.4, Math.min(2.4, line.velocityY - sample.delta * 0.18));
+                        line.lastSampleTime = sample.time;
+                    }
+                    line.velocityY -= line.currentY * 0.068;
+                    line.velocityY *= 0.40;
+                    line.currentY = Math.max(-9, Math.min(9, line.currentY + line.velocityY));
+                    line.element.dataset.motionY = line.currentY;
+                    line.element.dataset.motionVelocity = line.velocityY;
+                    line.element.dataset.motionSampleTime = line.lastSampleTime;
+                    line.element.style.transform = `translate3d(0, ${line.currentY.toFixed(2)}px, 0)`;
+                });
+                metaScrollSamples = metaScrollSamples.filter(sample => sample.time > now - 1200);
+            };
+
+            const render = () => {
+                updateMetaMotion(performance.now());
+                parallaxData.forEach(item => {
+                    item.currentY += (item.targetY - item.currentY) * LERP_FACTOR;
+                    if (Math.abs(item.targetY - item.currentY) > 0.01) {
+                        item.element.style.transform = `translate3d(0, ${item.currentY.toFixed(2)}px, 0)`;
+                    }
+                });
+                requestAnimationFrame(render);
+            };
+
+            if (scrollBtn && hero) {
+                scrollBtn.addEventListener('click', () => {
+                    body.classList.add('unlocked');
+                    hero.classList.add('collapsed');
+                    observeProjectVideos();
+                    updateHeaderUI();
+                });
+            }
+
+            if (backToTopBtn) {
+                backToTopBtn.addEventListener('click', () => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            }
+
+            window.addEventListener('scroll', () => {
+                const scrollTop = window.scrollY;
+                const now = performance.now();
+                metaScrollSamples.push({ time: now, delta: scrollTop - previousMetaScroll });
+                previousMetaScroll = scrollTop;
+                updateHeaderUI(scrollTop);
+                calculateParallaxTargets();
+                checkInfiniteScroll();
+                checkMetasOffscreenBottom();
+                checkBackToTopVisibility();
+            }, { passive: true });
+
+            window.addEventListener('resize', () => {
+                document.querySelectorAll('.project-desc').forEach(desc => { delete desc.dataset.motionPrepared; });
+                prepareDescriptionLines();
+                updateHeaderUI();
+                calculateParallaxTargets();
+                checkMetasOffscreenBottom();
+                checkBackToTopVisibility();
+            });
+
+            updateHeaderUI();
+            calculateParallaxTargets();
+            checkMetasOffscreenBottom();
+            checkBackToTopVisibility();
+            requestAnimationFrame(render);
+        });
+
         window.addEventListener('load', () => {
             window.scrollTo(0, 0);
             const loader = document.getElementById('portfolio-preloader');
